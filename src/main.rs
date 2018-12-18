@@ -17,14 +17,16 @@ mod manifest;
 mod message;
 
 #[derive(Debug)]
-struct HttpEvent {
+struct DashManifestEvent {
 }
 
-impl MessageEvent for HttpEvent {
+impl MessageEvent for DashManifestEvent {
   fn process(&self, message: &str) -> Result<u64, MessageError> {
     message::process(message)
   }
 }
+
+static DASH_MANIFEST_EVENT: DashManifestEvent = DashManifestEvent{};
 
 fn main() {
   if let Ok(_)= env::var("VERBOSE") {
@@ -33,6 +35,5 @@ fn main() {
     simple_logger::init_with_level(Level::Warn).unwrap();
   }
 
-  let http_event = HttpEvent{};
-  start_worker(&http_event);
+  start_worker(&DASH_MANIFEST_EVENT);
 }

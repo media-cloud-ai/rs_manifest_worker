@@ -46,20 +46,35 @@ pub fn process(message: &str) -> Result<u64, MessageError> {
       let ttml_path = get_parameter(&content.parameters, "ttml_path");
       let ttml_language = get_parameter(&content.parameters, "ttml_language");
       let ttml_role = get_parameter(&content.parameters, "ttml_role");
+
       if manifest_path == None {
-        return Err(MessageError::ProcessingError(content.job_id, "missing \"manifest_path\" parameter".to_string()));
+        return Err(MessageError::ProcessingError(content.job_id,
+          "missing \"manifest_path\" parameter".to_string()
+        ));
       }
       if ttml_path == None {
-        return Err(MessageError::ProcessingError(content.job_id, "missing \"ttml_path\" parameter".to_string()));
+        return Err(MessageError::ProcessingError(content.job_id,
+          "missing \"ttml_path\" parameter".to_string()
+        ));
       }
       if ttml_language == None {
-        return Err(MessageError::ProcessingError(content.job_id, "missing \"ttml_language\" parameter".to_string()));
+        return Err(MessageError::ProcessingError(content.job_id,
+          "missing \"ttml_language\" parameter".to_string()
+        ));
       }
       if ttml_role == None {
-        return Err(MessageError::ProcessingError(content.job_id, "missing \"ttml_role\" parameter".to_string()));
+        return Err(MessageError::ProcessingError(content.job_id,
+          "missing \"ttml_role\" parameter".to_string()
+        ));
       }
 
-      add_ttml_subtitle(content.job_id, &manifest_path.unwrap(), &ttml_path.unwrap(), &ttml_language.unwrap(), &ttml_role.unwrap())?;
+      add_ttml_subtitle(
+        content.job_id,
+        &manifest_path.unwrap(),
+        &ttml_path.unwrap(),
+        &ttml_language.unwrap(),
+        &ttml_role.unwrap()
+        )?;
 
       Ok(content.job_id)
     },
