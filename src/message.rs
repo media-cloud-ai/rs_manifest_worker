@@ -1,5 +1,6 @@
 
 use amqp_worker::*;
+use amqp_worker::job::*;
 use crate::manifest::{AdaptationSet, Manifest};
 use serde_json;
 use std::fs;
@@ -9,44 +10,20 @@ use std::path::Path;
 use yaserde::de::from_str;
 use yaserde::ser::to_string;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-struct Parameter {
-  #[serde(rename="type")]
-  kind: String,
-  id: String,
-  default: Option<String>,
-  value: Option<String>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct Job {
-  job_id: u64,
-  parameters: Vec<Parameter>
-}
-
-fn get_parameter(params: &Vec<Parameter>, key: &str) -> Option<String> {
-  for param in params.iter() {
-    if param.id == key {
-      if let Some(ref value) = param.value {
-        return Some(value.clone())
-      } else {
-        return param.default.clone()
-      }
-    }
-  }
-  None
-}
-
 pub fn process(message: &str) -> Result<u64, MessageError> {
   let parsed: Result<Job, _> = serde_json::from_str(message);
 
   match parsed {
     Ok(content) => {
       warn!("{:?}", content);
-      let manifest_path = get_parameter(&content.parameters, "manifest_path");
-      let ttml_path = get_parameter(&content.parameters, "ttml_path");
-      let ttml_language = get_parameter(&content.parameters, "ttml_language");
-      let ttml_role = get_parameter(&content.parameters, "ttml_role");
+      if let Err(message) = content.check_requirements() {
+        return Err(message);
+      }
+
+      let manifest_path = content.get_string_parameter("manifest_path");
+      let ttml_path = content.get_string_parameter("ttml_path");
+      let ttml_language = content.get_string_parameter("ttml_language");
+      let ttml_role = content.get_string_parameter("ttml_role");
 
       if manifest_path == None {
         return Err(MessageError::ProcessingError(content.job_id,
