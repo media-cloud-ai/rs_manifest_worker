@@ -3,6 +3,7 @@ extern crate amqp_worker;
 extern crate log;
 extern crate serde_json;
 extern crate simple_logger;
+extern crate yaserde;
 #[macro_use]
 extern crate yaserde_derive;
 extern crate xml;

@@ -16,9 +16,7 @@ pub fn process(message: &str) -> Result<u64, MessageError> {
   match parsed {
     Ok(content) => {
       warn!("{:?}", content);
-      if let Err(message) = content.check_requirements() {
-        return Err(message);
-      }
+      let _ = content.check_requirements()?;
 
       let manifest_path = content.get_string_parameter("manifest_path");
       let ttml_path = content.get_string_parameter("ttml_path");
@@ -115,6 +113,7 @@ fn add_subtitle_ttml_track() {
   let mut content = String::new();
   file.read_to_string(&mut content).unwrap();
 
+  println!("{}", content);
   assert!(content == reference);
   fs::remove_file("tests/sample_1_updated.mpd").unwrap();
 }
@@ -134,6 +133,7 @@ fn add_http_subtitle_ttml_track() {
   let mut content = String::new();
   file.read_to_string(&mut content).unwrap();
 
+  println!("{}", content);
   assert!(content == reference);
   fs::remove_file("tests/sample_1_http_ttml.mpd").unwrap();
 }

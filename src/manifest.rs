@@ -82,8 +82,6 @@ pub struct AdaptationSet {
   subsegment_alignment: Option<bool>,
   #[yaserde(rename="subsegmentStartsWithSAP", attribute)]
   subsegment_starts_sith_sap: Option<String>,
-  #[yaserde(rename="mimeType", attribute)]
-  mime_type: Option<String>,
   #[yaserde(rename="contentType", attribute)]
   content_type: Option<String>,
 
@@ -104,7 +102,6 @@ impl AdaptationSet {
       language: language.to_string(),
       subsegment_alignment: None,
       subsegment_starts_sith_sap: None,
-      mime_type: Some("application/ttml+xml".to_string()),
       content_type: Some("text".to_string()),
       role: Some(Role{
         scheme_id_uri: "urn:mpeg:dash:role:2011".to_string(),
@@ -114,12 +111,13 @@ impl AdaptationSet {
       representation: vec![
         Representation {
           id: "s1".to_string(),
-          mime_type: None,
+          mime_type: Some("application/ttml+xml".to_string()),
           codecs: None,
           width: None,
           height: None,
           frame_rate: None,
           sample_aspect_ratio: None,
+          audio_sampling_rate: None,
           start_with_sap: None,
           bandwidth: file_size,
           audio_channel_configuration: vec![],
@@ -165,6 +163,8 @@ pub struct Representation {
   height: Option<u32>,
   #[yaserde(rename="frameRate", attribute)]
   frame_rate: Option<u32>,
+  #[yaserde(rename="audioSamplingRate", attribute)]
+  audio_sampling_rate: Option<String>,
   #[yaserde(rename="sar", attribute)]
   sample_aspect_ratio: Option<String>,
   #[yaserde(rename="startWithSAP", attribute)]
@@ -190,6 +190,7 @@ impl Default for Representation {
       height: None,
       frame_rate: None,
       sample_aspect_ratio: None,
+      audio_sampling_rate: None,
       start_with_sap: None,
       bandwidth: 0,
       base_url: "".to_string(),
