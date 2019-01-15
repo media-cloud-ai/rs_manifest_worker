@@ -11,54 +11,47 @@ use yaserde::de::from_str;
 use yaserde::ser::to_string;
 
 pub fn process(message: &str) -> Result<u64, MessageError> {
-  let parsed: Result<Job, _> = serde_json::from_str(message);
+  println!("{:?}", message);
+  let job = Job::new(message)?;
 
-  match parsed {
-    Ok(content) => {
-      warn!("{:?}", content);
-      let _ = content.check_requirements()?;
+  warn!("{:?}", job);
+  let _ = job.check_requirements()?;
 
-      let manifest_path = content.get_string_parameter("manifest_path");
-      let ttml_path = content.get_string_parameter("ttml_path");
-      let ttml_language = content.get_string_parameter("ttml_language");
-      let ttml_role = content.get_string_parameter("ttml_role");
+  let manifest_path = job.get_string_parameter("manifest_path");
+  let ttml_path = job.get_string_parameter("ttml_path");
+  let ttml_language = job.get_string_parameter("ttml_language");
+  let ttml_role = job.get_string_parameter("ttml_role");
 
-      if manifest_path == None {
-        return Err(MessageError::ProcessingError(content.job_id,
-          "missing \"manifest_path\" parameter".to_string()
-        ));
-      }
-      if ttml_path == None {
-        return Err(MessageError::ProcessingError(content.job_id,
-          "missing \"ttml_path\" parameter".to_string()
-        ));
-      }
-      if ttml_language == None {
-        return Err(MessageError::ProcessingError(content.job_id,
-          "missing \"ttml_language\" parameter".to_string()
-        ));
-      }
-      if ttml_role == None {
-        return Err(MessageError::ProcessingError(content.job_id,
-          "missing \"ttml_role\" parameter".to_string()
-        ));
-      }
-
-      add_ttml_subtitle(
-        content.job_id,
-        &manifest_path.unwrap(),
-        &ttml_path.unwrap(),
-        &ttml_language.unwrap(),
-        &ttml_role.unwrap()
-        )?;
-
-      Ok(content.job_id)
-    },
-    Err(msg) => {
-      error!("{:?}", msg);
-      return Err(MessageError::RuntimeError("bad input message".to_string()));
-    }
+  if manifest_path == None {
+    return Err(MessageError::ProcessingError(job.job_id,
+      "missing \"manifest_path\" parameter".to_string()
+    ));
   }
+  if ttml_path == None {
+    return Err(MessageError::ProcessingError(job.job_id,
+      "missing \"ttml_path\" parameter".to_string()
+    ));
+  }
+  if ttml_language == None {
+    return Err(MessageError::ProcessingError(job.job_id,
+      "missing \"ttml_language\" parameter".to_string()
+    ));
+  }
+  if ttml_role == None {
+    return Err(MessageError::ProcessingError(job.job_id,
+      "missing \"ttml_role\" parameter".to_string()
+    ));
+  }
+
+  add_ttml_subtitle(
+    job.job_id,
+    &manifest_path.unwrap(),
+    &ttml_path.unwrap(),
+    &ttml_language.unwrap(),
+    &ttml_role.unwrap()
+    )?;
+
+  Ok(job.job_id)
 }
 
 fn add_ttml_subtitle(job_id: u64, manifest_path: &str, ttml_path: &str, ttml_language: &str, ttml_role: &str) -> Result<(), MessageError> {
