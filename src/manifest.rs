@@ -27,6 +27,50 @@ impl Manifest {
   pub fn add_adaptation_set(&mut self, adaptation_set: AdaptationSet) {
     self.period.adaptation_set.push(adaptation_set);
   }
+
+  pub fn remove_adaptation_set(&mut self, ttml_language: &str, ttml_role: &str) {
+    self.period.adaptation_set =
+      self.period.adaptation_set.iter()
+      .filter(|adaptation_set| {
+        if ttml_language == adaptation_set.language.as_str() &&
+          adaptation_set.role == Some(Role{
+            scheme_id_uri: "urn:mpeg:dash:role:2011".to_string(),
+            id: None,
+            content: Some(ttml_role.to_string()),
+          }) {
+            true
+        } else {
+          false
+        }
+      })
+      .map(|adaptation_set| adaptation_set.clone())
+      .collect();
+  }
+
+  pub fn prefix_urls(&mut self, reference_url: &str) {
+    let reference_url = reference_url.to_string().replace("manifest.mpd", "");
+
+    self.period.adaptation_set =
+      self.period.adaptation_set.iter()
+      .map(|adaptation_set| {
+        let mut adaptation_set = adaptation_set.clone();
+        adaptation_set.representation =
+          adaptation_set.representation.iter()
+          .map(|representation| {
+            let mut representation = representation.clone();
+            representation.base_url =
+              if !representation.base_url.starts_with("http") {
+                reference_url.clone() + &representation.base_url
+              } else {
+                representation.base_url
+              };
+            representation
+          })
+          .collect();
+        adaptation_set
+      })
+      .collect();
+  }
 }
 
 #[derive(Debug, Clone, YaSerialize, YaDeserialize)]
@@ -129,7 +173,7 @@ impl AdaptationSet {
   }
 }
 
-#[derive(Debug, Clone, YaSerialize, YaDeserialize)]
+#[derive(Debug, Clone, PartialEq, YaSerialize, YaDeserialize)]
 pub struct Role {
   #[yaserde(rename="schemeIdUri", attribute)]
   scheme_id_uri: String,
