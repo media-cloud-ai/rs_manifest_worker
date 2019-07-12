@@ -3,32 +3,31 @@ extern crate amqp_worker;
 extern crate log;
 extern crate serde_json;
 extern crate simple_logger;
+extern crate xml;
 extern crate yaserde;
 #[macro_use]
 extern crate yaserde_derive;
-extern crate xml;
+
+use std::env;
 
 use amqp_worker::*;
-use std::env;
 use log::Level;
 
 mod dash;
 
 #[derive(Debug)]
-struct DashManifestEvent {
-}
+struct DashManifestEvent {}
 
 impl MessageEvent for DashManifestEvent {
   fn process(&self, message: &str) -> Result<u64, MessageError> {
-    message::process(message)
     dash::message::process(message)
   }
 }
 
-static DASH_MANIFEST_EVENT: DashManifestEvent = DashManifestEvent{};
+static DASH_MANIFEST_EVENT: DashManifestEvent = DashManifestEvent {};
 
 fn main() {
-  if let Ok(_)= env::var("VERBOSE") {
+  if let Ok(_) = env::var("VERBOSE") {
     simple_logger::init_with_level(Level::Debug).unwrap();
   } else {
     simple_logger::init_with_level(Level::Warn).unwrap();

@@ -1,7 +1,6 @@
-
-use amqp_worker::*;
 use crate::dash::manifest::{AdaptationSet, Manifest};
 use amqp_worker::job::*;
+use amqp_worker::*;
 use std::fs;
 use std::fs::File;
 use std::io::{Read, Write};
@@ -23,28 +22,34 @@ pub fn process(message: &str) -> Result<u64, MessageError> {
   let replace = job.get_boolean_parameter("replace").unwrap_or(false);
 
   if manifest_path == None {
-    return Err(MessageError::ProcessingError(job.job_id,
-      "missing \"manifest_path\" parameter".to_string()
+    return Err(MessageError::ProcessingError(
+      job.job_id,
+      "missing \"manifest_path\" parameter".to_string(),
     ));
   }
   if ttml_path == None {
-    return Err(MessageError::ProcessingError(job.job_id,
-      "missing \"ttml_path\" parameter".to_string()
+    return Err(MessageError::ProcessingError(
+      job.job_id,
+      "missing \"ttml_path\" parameter".to_string(),
     ));
   }
   if ttml_language == None {
-    return Err(MessageError::ProcessingError(job.job_id,
-      "missing \"ttml_language\" parameter".to_string()
+    return Err(MessageError::ProcessingError(
+      job.job_id,
+      "missing \"ttml_language\" parameter".to_string(),
     ));
   }
   if ttml_role == None {
-    return Err(MessageError::ProcessingError(job.job_id,
-      "missing \"ttml_role\" parameter".to_string()
+    return Err(MessageError::ProcessingError(
+      job.job_id,
+      "missing \"ttml_role\" parameter".to_string(),
     ));
   }
   let manifest_path = manifest_path.unwrap();
 
-  let destination_path = job.get_string_parameter("destination_path").unwrap_or(manifest_path.clone());
+  let destination_path = job
+    .get_string_parameter("destination_path")
+    .unwrap_or(manifest_path.clone());
   let reference_url = job.get_string_parameter("reference_url");
 
   add_ttml_subtitle(
@@ -55,8 +60,8 @@ pub fn process(message: &str) -> Result<u64, MessageError> {
     &ttml_language.unwrap(),
     &ttml_role.unwrap(),
     &reference_url,
-    replace
-    )?;
+    replace,
+  )?;
 
   Ok(job.job_id)
 }
@@ -69,33 +74,38 @@ fn add_ttml_subtitle(
   ttml_language: &str,
   ttml_role: &str,
   reference_url: &Option<String>,
-  replace: bool
-  ) -> Result<(), MessageError> {
-
+  replace: bool,
+) -> Result<(), MessageError> {
   let mp_folder = Path::new(manifest_path).parent();
 
   if mp_folder.is_none() {
-    return Err(MessageError::ProcessingError(job_id, "unable to found folder directory of the manifest".to_string()));
+    return Err(MessageError::ProcessingError(
+      job_id,
+      "unable to found folder directory of the manifest".to_string(),
+    ));
   }
 
-  let reference_ttml_path = 
-    if let Ok(path) = Path::new(ttml_path).strip_prefix(mp_folder.unwrap()) {
-      path.to_str().unwrap()
-    } else {
-      ttml_path
-    };
+  let reference_ttml_path = if let Ok(path) = Path::new(ttml_path).strip_prefix(mp_folder.unwrap())
+  {
+    path.to_str().unwrap()
+  } else {
+    ttml_path
+  };
 
-  let mut file = File::open(manifest_path).map_err(|e| MessageError::ProcessingError(job_id, e.to_string()))?;
+  let mut file =
+    File::open(manifest_path).map_err(|e| MessageError::ProcessingError(job_id, e.to_string()))?;
   let mut contents = String::new();
-  file.read_to_string(&mut contents).map_err(|e| MessageError::ProcessingError(job_id, e.to_string()))?;
+  file
+    .read_to_string(&mut contents)
+    .map_err(|e| MessageError::ProcessingError(job_id, e.to_string()))?;
 
-  let mut manifest: Manifest = from_str(&contents).map_err(|e| MessageError::ProcessingError(job_id, e))?;
-  let ttml_file_size = 
-    if let Ok(metadata) = fs::metadata(&ttml_path) {
-      metadata.len()
-    } else {
-      0
-    };
+  let mut manifest: Manifest =
+    from_str(&contents).map_err(|e| MessageError::ProcessingError(job_id, e))?;
+  let ttml_file_size = if let Ok(metadata) = fs::metadata(&ttml_path) {
+    metadata.len()
+  } else {
+    0
+  };
 
   if let Some(url) = reference_url {
     manifest.prefix_urls(&url);
@@ -104,20 +114,39 @@ fn add_ttml_subtitle(
   if replace {
     manifest.remove_adaptation_set(ttml_language, ttml_role);
   }
-  let adaptation_set = AdaptationSet::new_ttml_subtitle(&reference_ttml_path, ttml_language, ttml_role, ttml_file_size);
+  let adaptation_set = AdaptationSet::new_ttml_subtitle(
+    &reference_ttml_path,
+    ttml_language,
+    ttml_role,
+    ttml_file_size,
+  );
   manifest.add_adaptation_set(adaptation_set);
 
-  let updated_manifest = to_string(&manifest).map_err(|e| MessageError::ProcessingError(job_id, e))?;
+  let updated_manifest =
+    to_string(&manifest).map_err(|e| MessageError::ProcessingError(job_id, e))?;
 
-  let mut output_file = File::create(destination_manifest_path).map_err(|e| MessageError::ProcessingError(job_id, e.to_string()))?;
-  output_file.write_all(&updated_manifest.into_bytes()).map_err(|e| MessageError::ProcessingError(job_id, e.to_string()))?;
+  let mut output_file = File::create(destination_manifest_path)
+    .map_err(|e| MessageError::ProcessingError(job_id, e.to_string()))?;
+  output_file
+    .write_all(&updated_manifest.into_bytes())
+    .map_err(|e| MessageError::ProcessingError(job_id, e.to_string()))?;
 
   Ok(())
 }
 
 #[test]
 fn add_subtitle_ttml_track() {
-  add_ttml_subtitle(666, "tests/sample_1.mpd", "tests/sample_1_updated.mpd", "tests/sample_subtitle.ttml", "fra", "subtitle", &None, false).unwrap();
+  add_ttml_subtitle(
+    666,
+    "tests/sample_1.mpd",
+    "tests/sample_1_updated.mpd",
+    "tests/sample_subtitle.ttml",
+    "fra",
+    "subtitle",
+    &None,
+    false,
+  )
+  .unwrap();
 
   let mut file_reference = File::open("tests/sample_1_for_validation.mpd").unwrap();
   let mut reference = String::new();
@@ -134,7 +163,17 @@ fn add_subtitle_ttml_track() {
 
 #[test]
 fn replace_subtitle_ttml_track_with_reference() {
-  add_ttml_subtitle(666, "tests/sample_1.mpd", "tests/sample_1_replaced.mpd", "tests/sample_subtitle.ttml", "qaa", "subtitle", &Some("http://server.com/dash/manifest.mpd".to_string()), false).unwrap();
+  add_ttml_subtitle(
+    666,
+    "tests/sample_1.mpd",
+    "tests/sample_1_replaced.mpd",
+    "tests/sample_subtitle.ttml",
+    "qaa",
+    "subtitle",
+    &Some("http://server.com/dash/manifest.mpd".to_string()),
+    false,
+  )
+  .unwrap();
 
   let mut file_reference = File::open("tests/sample_1_for_replacement.mpd").unwrap();
   let mut reference = String::new();
@@ -151,7 +190,17 @@ fn replace_subtitle_ttml_track_with_reference() {
 
 #[test]
 fn add_http_subtitle_ttml_track() {
-  add_ttml_subtitle(666, "tests/sample_1.mpd", "tests/sample_1_http_ttml.mpd", "http://server/static/sample_subtitle.ttml", "fra", "subtitle", &None, false).unwrap();
+  add_ttml_subtitle(
+    666,
+    "tests/sample_1.mpd",
+    "tests/sample_1_http_ttml.mpd",
+    "http://server/static/sample_subtitle.ttml",
+    "fra",
+    "subtitle",
+    &None,
+    false,
+  )
+  .unwrap();
 
   let mut file_reference = File::open("tests/sample_1_for_http.mpd").unwrap();
   let mut reference = String::new();

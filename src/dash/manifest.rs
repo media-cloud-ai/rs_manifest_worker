@@ -1,27 +1,26 @@
-
 use std::io::{Read, Write};
+
 use yaserde::{YaDeserialize, YaSerialize};
 
 #[derive(Debug, Clone, YaSerialize, YaDeserialize)]
-#[yaserde(root = "MPD", namespace="urn:mpeg:dash:schema:mpd:2011")]
+#[yaserde(root = "MPD", namespace = "urn:mpeg:dash:schema:mpd:2011")]
 pub struct Manifest {
-  #[yaserde(rename="minBufferTime", attribute)]
+  #[yaserde(rename = "minBufferTime", attribute)]
   min_buffer_time: Option<String>,
-  #[yaserde(rename="mediaPresentationDuration", attribute)]
+  #[yaserde(rename = "mediaPresentationDuration", attribute)]
   media_presentation_duration: String,
-  #[yaserde(rename="maxSegmentDuration", attribute)]
+  #[yaserde(rename = "maxSegmentDuration", attribute)]
   max_segment_duration: String,
   #[yaserde(attribute)]
   profiles: String,
-  #[yaserde(rename="type", attribute)]
+  #[yaserde(rename = "type", attribute)]
   kind: String,
 
-  #[yaserde(rename="ProgramInformation")]
+  #[yaserde(rename = "ProgramInformation")]
   program_information: Option<ProgramInformation>,
-  #[yaserde(rename="Period")]
+  #[yaserde(rename = "Period")]
   period: Period,
 }
-
 
 impl Manifest {
   pub fn add_adaptation_set(&mut self, adaptation_set: AdaptationSet) {
@@ -29,16 +28,20 @@ impl Manifest {
   }
 
   pub fn remove_adaptation_set(&mut self, ttml_language: &str, ttml_role: &str) {
-    self.period.adaptation_set =
-      self.period.adaptation_set.iter()
+    self.period.adaptation_set = self
+      .period
+      .adaptation_set
+      .iter()
       .filter(|adaptation_set| {
-        if ttml_language == adaptation_set.language.as_str() &&
-          adaptation_set.role == Some(Role{
-            scheme_id_uri: "urn:mpeg:dash:role:2011".to_string(),
-            id: None,
-            content: Some(ttml_role.to_string()),
-          }) {
-            true
+        if ttml_language == adaptation_set.language.as_str()
+          && adaptation_set.role
+            == Some(Role {
+              scheme_id_uri: "urn:mpeg:dash:role:2011".to_string(),
+              id: None,
+              content: Some(ttml_role.to_string()),
+            })
+        {
+          true
         } else {
           false
         }
@@ -50,20 +53,22 @@ impl Manifest {
   pub fn prefix_urls(&mut self, reference_url: &str) {
     let reference_url = reference_url.to_string().replace("manifest.mpd", "");
 
-    self.period.adaptation_set =
-      self.period.adaptation_set.iter()
+    self.period.adaptation_set = self
+      .period
+      .adaptation_set
+      .iter()
       .map(|adaptation_set| {
         let mut adaptation_set = adaptation_set.clone();
-        adaptation_set.representation =
-          adaptation_set.representation.iter()
+        adaptation_set.representation = adaptation_set
+          .representation
+          .iter()
           .map(|representation| {
             let mut representation = representation.clone();
-            representation.base_url =
-              if !representation.base_url.starts_with("http") {
-                reference_url.clone() + &representation.base_url
-              } else {
-                representation.base_url
-              };
+            representation.base_url = if !representation.base_url.starts_with("http") {
+              reference_url.clone() + &representation.base_url
+            } else {
+              representation.base_url
+            };
             representation
           })
           .collect();
@@ -75,10 +80,10 @@ impl Manifest {
 
 #[derive(Debug, Clone, YaSerialize, YaDeserialize)]
 pub struct ProgramInformation {
-  #[yaserde(rename="moreInformationURL", attribute)]
+  #[yaserde(rename = "moreInformationURL", attribute)]
   more_information_url: String,
 
-  #[yaserde(rename="Title")]
+  #[yaserde(rename = "Title")]
   title: String,
 }
 
@@ -95,7 +100,7 @@ impl Default for ProgramInformation {
 pub struct Period {
   #[yaserde(attribute)]
   duration: String,
-  #[yaserde(rename="AdaptationSet")]
+  #[yaserde(rename = "AdaptationSet")]
   adaptation_set: Vec<AdaptationSet>,
 }
 
@@ -110,28 +115,28 @@ impl Default for Period {
 
 #[derive(Debug, Clone, YaSerialize, YaDeserialize)]
 pub struct AdaptationSet {
-  #[yaserde(rename="segmentAlignment", attribute)]
+  #[yaserde(rename = "segmentAlignment", attribute)]
   segment_alignement: bool,
-  #[yaserde(rename="maxWidth", attribute)]
+  #[yaserde(rename = "maxWidth", attribute)]
   max_width: Option<u32>,
-  #[yaserde(rename="maxHeight", attribute)]
+  #[yaserde(rename = "maxHeight", attribute)]
   max_height: Option<u32>,
-  #[yaserde(rename="maxFrameRate", attribute)]
+  #[yaserde(rename = "maxFrameRate", attribute)]
   max_frame_rate: Option<u32>,
-  #[yaserde(rename="par", attribute)]
+  #[yaserde(rename = "par", attribute)]
   pixel_aspect_ratio: Option<String>,
-  #[yaserde(rename="lang", attribute)]
+  #[yaserde(rename = "lang", attribute)]
   language: String,
-  #[yaserde(rename="subsegmentAlignment", attribute)]
+  #[yaserde(rename = "subsegmentAlignment", attribute)]
   subsegment_alignment: Option<bool>,
-  #[yaserde(rename="subsegmentStartsWithSAP", attribute)]
+  #[yaserde(rename = "subsegmentStartsWithSAP", attribute)]
   subsegment_starts_sith_sap: Option<String>,
-  #[yaserde(rename="contentType", attribute)]
+  #[yaserde(rename = "contentType", attribute)]
   content_type: Option<String>,
 
-  #[yaserde(rename="Role")]
+  #[yaserde(rename = "Role")]
   role: Option<Role>,
-  #[yaserde(rename="Representation")]
+  #[yaserde(rename = "Representation")]
   representation: Vec<Representation>,
 }
 
@@ -147,37 +152,35 @@ impl AdaptationSet {
       subsegment_alignment: None,
       subsegment_starts_sith_sap: None,
       content_type: Some("text".to_string()),
-      role: Some(Role{
+      role: Some(Role {
         scheme_id_uri: "urn:mpeg:dash:role:2011".to_string(),
         id: None,
         content: Some(role.to_string()),
       }),
-      representation: vec![
-        Representation {
-          id: "s1".to_string(),
-          mime_type: Some("application/ttml+xml".to_string()),
-          codecs: None,
-          width: None,
-          height: None,
-          frame_rate: None,
-          sample_aspect_ratio: None,
-          audio_sampling_rate: None,
-          start_with_sap: None,
-          bandwidth: file_size,
-          audio_channel_configuration: vec![],
-          base_url: file_path.to_string(),
-          segment_base: None,
-        }
-      ]
+      representation: vec![Representation {
+        id: "s1".to_string(),
+        mime_type: Some("application/ttml+xml".to_string()),
+        codecs: None,
+        width: None,
+        height: None,
+        frame_rate: None,
+        sample_aspect_ratio: None,
+        audio_sampling_rate: None,
+        start_with_sap: None,
+        bandwidth: file_size,
+        audio_channel_configuration: vec![],
+        base_url: file_path.to_string(),
+        segment_base: None,
+      }],
     }
   }
 }
 
 #[derive(Debug, Clone, PartialEq, YaSerialize, YaDeserialize)]
 pub struct Role {
-  #[yaserde(rename="schemeIdUri", attribute)]
+  #[yaserde(rename = "schemeIdUri", attribute)]
   scheme_id_uri: String,
-  #[yaserde(rename="value", attribute)]
+  #[yaserde(rename = "value", attribute)]
   content: Option<String>,
   #[yaserde(attribute)]
   id: Option<String>,
@@ -197,7 +200,7 @@ impl Default for Role {
 pub struct Representation {
   #[yaserde(attribute)]
   id: String,
-  #[yaserde(rename="mimeType", attribute)]
+  #[yaserde(rename = "mimeType", attribute)]
   mime_type: Option<String>,
   #[yaserde(attribute)]
   codecs: Option<String>,
@@ -205,22 +208,22 @@ pub struct Representation {
   width: Option<u32>,
   #[yaserde(attribute)]
   height: Option<u32>,
-  #[yaserde(rename="frameRate", attribute)]
+  #[yaserde(rename = "frameRate", attribute)]
   frame_rate: Option<u32>,
-  #[yaserde(rename="audioSamplingRate", attribute)]
+  #[yaserde(rename = "audioSamplingRate", attribute)]
   audio_sampling_rate: Option<String>,
-  #[yaserde(rename="sar", attribute)]
+  #[yaserde(rename = "sar", attribute)]
   sample_aspect_ratio: Option<String>,
-  #[yaserde(rename="startWithSAP", attribute)]
+  #[yaserde(rename = "startWithSAP", attribute)]
   start_with_sap: Option<u8>,
   #[yaserde(attribute)]
   bandwidth: u64,
 
-  #[yaserde(rename="AudioChannelConfiguration")]
+  #[yaserde(rename = "AudioChannelConfiguration")]
   audio_channel_configuration: Vec<AudioChannelConfiguration>,
-  #[yaserde(rename="BaseURL")]
+  #[yaserde(rename = "BaseURL")]
   base_url: String,
-  #[yaserde(rename="SegmentBase")]
+  #[yaserde(rename = "SegmentBase")]
   segment_base: Option<SegmentBase>,
 }
 
@@ -246,13 +249,13 @@ impl Default for Representation {
 
 #[derive(Debug, Clone, YaSerialize, YaDeserialize)]
 pub struct SegmentBase {
-  #[yaserde(rename="indexRangeExact", attribute)]
+  #[yaserde(rename = "indexRangeExact", attribute)]
   index_range_exact: bool,
-  #[yaserde(rename="indexRange", attribute)]
+  #[yaserde(rename = "indexRange", attribute)]
   index_range: Option<String>,
-  #[yaserde(rename="presentationTimeOffset", attribute)]
+  #[yaserde(rename = "presentationTimeOffset", attribute)]
   presentation_time_offset: Option<u64>,
-  #[yaserde(rename="Initialization")]
+  #[yaserde(rename = "Initialization")]
   initialization: Initialization,
 }
 
@@ -262,14 +265,14 @@ impl Default for SegmentBase {
       index_range_exact: false,
       index_range: None,
       presentation_time_offset: None,
-      initialization: Initialization::default()
+      initialization: Initialization::default(),
     }
   }
 }
 
 #[derive(Debug, Clone, YaSerialize, YaDeserialize)]
 pub struct Initialization {
-  #[yaserde(rename="sourceURL", attribute)]
+  #[yaserde(rename = "sourceURL", attribute)]
   source_url: Option<String>,
   #[yaserde(attribute)]
   range: Option<String>,
@@ -279,16 +282,16 @@ impl Default for Initialization {
   fn default() -> Self {
     Initialization {
       source_url: None,
-      range: None
+      range: None,
     }
   }
 }
 
 #[derive(Debug, Clone, YaSerialize, YaDeserialize)]
 pub struct AudioChannelConfiguration {
-  #[yaserde(rename="schemeIdUri", attribute)]
+  #[yaserde(rename = "schemeIdUri", attribute)]
   scheme_id_uri: String,
-  #[yaserde(rename="value", attribute)]
+  #[yaserde(rename = "value", attribute)]
   content: Option<String>,
   #[yaserde(attribute)]
   id: Option<String>,
