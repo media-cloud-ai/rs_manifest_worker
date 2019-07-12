@@ -12,8 +12,7 @@ use amqp_worker::*;
 use std::env;
 use log::Level;
 
-mod manifest;
-mod message;
+mod dash;
 
 #[derive(Debug)]
 struct DashManifestEvent {
@@ -22,6 +21,7 @@ struct DashManifestEvent {
 impl MessageEvent for DashManifestEvent {
   fn process(&self, message: &str) -> Result<u64, MessageError> {
     message::process(message)
+    dash::message::process(message)
   }
 }
 

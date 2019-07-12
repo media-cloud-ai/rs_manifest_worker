@@ -1,7 +1,7 @@
 
 use amqp_worker::*;
+use crate::dash::manifest::{AdaptationSet, Manifest};
 use amqp_worker::job::*;
-use crate::manifest::{AdaptationSet, Manifest};
 use std::fs;
 use std::fs::File;
 use std::io::{Read, Write};
