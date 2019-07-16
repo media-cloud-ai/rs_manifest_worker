@@ -49,20 +49,11 @@ impl Smil {
   }
 }
 
-#[derive(Debug, YaDeserialize, YaSerialize)]
+#[derive(Debug, Default, YaDeserialize, YaSerialize)]
 struct Head {
   meta: Vec<Meta>,
   #[yaserde(rename = "paramGroup")]
   param_group: Vec<ParamGroup>,
-}
-
-impl Default for Head {
-  fn default() -> Self {
-    Head {
-      meta: vec![],
-      param_group: vec![],
-    }
-  }
 }
 
 #[derive(Debug, YaDeserialize, YaSerialize)]
@@ -78,35 +69,17 @@ struct ParamGroup {
   meta: Vec<Meta>,
 }
 
-#[derive(Debug, YaDeserialize, YaSerialize)]
+#[derive(Debug, Default, YaDeserialize, YaSerialize)]
 struct Body {
   switch: Switch,
 }
 
-impl Default for Body {
-  fn default() -> Self {
-    Body {
-      switch: Switch::default(),
-    }
-  }
-}
-
-#[derive(Debug, YaDeserialize, YaSerialize)]
+#[derive(Debug, Default, YaDeserialize, YaSerialize)]
 struct Switch {
   audio: Vec<Audio>,
   video: Vec<Video>,
   #[yaserde(rename = "textstream")]
   text: Vec<TextStream>,
-}
-
-impl Default for Switch {
-  fn default() -> Self {
-    Switch {
-      audio: vec![],
-      video: vec![],
-      text: vec![],
-    }
-  }
 }
 
 #[derive(Debug, YaDeserialize, YaSerialize)]
