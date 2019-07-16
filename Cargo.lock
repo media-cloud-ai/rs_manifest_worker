@@ -266,7 +266,7 @@ dependencies = [
 
 [[package]]
 name = "dash_manifest_worker"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "amqp_worker 0.5.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures 0.1.25 (registry+https://github.com/rust-lang/crates.io-index)",

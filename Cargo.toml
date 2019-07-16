@@ -1,7 +1,10 @@
 [package]
 name = "dash_manifest_worker"
-version = "0.1.0"
-authors = ["Marc-Antoine Arnaud <arnaud.marcantoine@gmail.com>"]
+version = "0.2.0"
+authors = [
+  "Marc-Antoine Arnaud <arnaud.marcantoine@gmail.com>",
+  "Valentin Noel <valentin.noel@media-io.com>"
+]
 #edition = "2018"
 
 [dependencies]
