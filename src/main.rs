@@ -13,6 +13,7 @@ use std::env;
 use amqp_worker::job::*;
 use amqp_worker::*;
 use log::Level;
+use std::process::exit;
 
 mod dash;
 mod ism;
@@ -57,9 +58,13 @@ fn main() {
       info!("Start worker with ISM mode...");
       start_worker(&ISM_MANIFEST_EVENT)
     }
-    _ => {
+    DASH => {
       info!("Start worker with DASH mode...");
       start_worker(&DASH_MANIFEST_EVENT)
+    }
+    value => {
+      error!("Unsupported mode: {:?}", value);
+      exit(1);
     }
   }
 }
