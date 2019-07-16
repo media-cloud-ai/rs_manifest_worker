@@ -3,36 +3,68 @@ extern crate amqp_worker;
 extern crate log;
 extern crate serde_json;
 extern crate simple_logger;
+extern crate xml;
 extern crate yaserde;
 #[macro_use]
 extern crate yaserde_derive;
-extern crate xml;
 
-use amqp_worker::*;
 use std::env;
-use log::Level;
 
-mod manifest;
-mod message;
+use amqp_worker::job::*;
+use amqp_worker::*;
+use log::Level;
+use std::process::exit;
+
+mod dash;
+mod ism;
+mod utils;
 
 #[derive(Debug)]
-struct DashManifestEvent {
-}
+struct DashManifestEvent {}
 
 impl MessageEvent for DashManifestEvent {
-  fn process(&self, message: &str) -> Result<u64, MessageError> {
-    message::process(message)
+  fn process(&self, message: &str) -> Result<JobResult, MessageError> {
+    dash::message::process(message)
   }
 }
 
-static DASH_MANIFEST_EVENT: DashManifestEvent = DashManifestEvent{};
+#[derive(Debug)]
+struct IsmManifestEvent {}
+
+impl MessageEvent for IsmManifestEvent {
+  fn process(&self, message: &str) -> Result<JobResult, MessageError> {
+    ism::message::process(message)
+  }
+}
+
+static DASH_MANIFEST_EVENT: DashManifestEvent = DashManifestEvent {};
+static ISM_MANIFEST_EVENT: IsmManifestEvent = IsmManifestEvent {};
+
+const ISM: &str = "ISM";
+const DASH: &str = "DASH";
 
 fn main() {
-  if let Ok(_)= env::var("VERBOSE") {
+  if let Ok(_) = env::var("VERBOSE") {
     simple_logger::init_with_level(Level::Debug).unwrap();
   } else {
     simple_logger::init_with_level(Level::Warn).unwrap();
   }
 
-  start_worker(&DASH_MANIFEST_EVENT);
+  match env::var("MANIFEST_MODE")
+    .unwrap_or(DASH.to_string())
+    .as_str()
+  {
+    ISM => {
+      info!("Start worker with ISM mode...");
+      start_worker(&ISM_MANIFEST_EVENT)
+    }
+    DASH => {
+      info!("Start worker with DASH mode...");
+      start_worker(&DASH_MANIFEST_EVENT)
+    }
+    value => {
+      error!("Unsupported mode: {:?}", value);
+      exit(1);
+    }
+  }
 }

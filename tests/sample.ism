@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created with Unified Streaming Platform(version=1.8.3) -->
+<smil xmlns="http://www.w3.org/2001/SMIL20/Language">
+    <head>
+        <meta name="clientManifestRelativePath" content="test_ism_file.ismc" />
+        <meta name="creator" content="Unified Streaming Platform (USP)" />
+        <meta name="iss_playout" content="false" />
+        <meta name="hls_playout" content="aes" />
+        <meta name="hds_playout" content="false" />
+        <meta name="mpd_playout" content="clear" />
+        <meta name="hls_minimum_fragment_length" content="10" />
+        <meta name="hls_client_manifest_version" content="5" />
+        <meta name="hls_no_audio_only" content="true" />
+        <meta name="hls_no_multiplex" content="true" />
+        <meta name="hls_subtitles_subformat" content="WebVTT" />
+        <meta name="mpd_min_buffer_time" content="20" />
+        <paramGroup id="hls">
+            <meta name="key" content=":ABCDEFGHIJKLMNOPQRSTUVWXYZ123456" />
+            <meta name="license_server_url" content="https://localhost/keys/crypt.key" />
+        </paramGroup>
+    </head>
+    <body>
+        <switch>
+            <audio src="test_file.isma" systemBitrate="64000" systemLanguage="fre">
+                <param name="trackID" value="1" valueType="data" />
+                <param name="trackName" value="audio_fre" valueType="data" />
+                <param name="TimeScale" value="48000" valueType="data" />
+                <param name="Description" value="Audio Français" valueType="data" />
+                <param name="Role" value="main" valueType="data" />
+                <param name="SamplingRate" value="48000" valueType="data" />
+                <param name="Channels" value="2" valueType="data" />
+                <param name="BitsPerSample" value="16" valueType="data" />
+                <param name="PacketSize" value="4" valueType="data" />
+                <param name="AudioTag" value="255" valueType="data" />
+                <param name="FourCC" value="AACL" valueType="data" />
+                <param name="CodecPrivateData" value="119056E500" valueType="data" />
+            </audio>
+            <textstream src="test_file.ismt" systemBitrate="1000" systemLanguage="fre">
+                <param name="trackID" value="1" valueType="data" />
+                <param name="trackName" value="textstream_fre" valueType="data" />
+                <param name="TimeScale" value="1000" valueType="data" />
+                <param name="Description" value="Sous-Titres Malentendant" valueType="data" />
+                <param name="Role" value="subtitle" valueType="data" />
+                <param name="FourCC" value="stpp" valueType="data" />
+                <param name="CodecPrivateData" value="" valueType="data" />
+            </textstream>
+            <video src="test_file.ismv" systemBitrate="118000">
+                <param name="trackID" value="1" valueType="data" />
+                <param name="TimeScale" value="25" valueType="data" />
+                <param name="MaxWidth" value="256" valueType="data" />
+                <param name="MaxHeight" value="144" valueType="data" />
+                <param name="FourCC" value="AVC1" valueType="data" />
+                <param name="CodecPrivateData" value="000000016742C01EDB0404EC0440000003004000000CA3C58BB80000000168CA8CB2" valueType="data" />
+            </video>
+            <video src="test_file.ismv" systemBitrate="240000">
+                <param name="trackID" value="2" valueType="data" />
+                <param name="TimeScale" value="25" valueType="data" />
+                <param name="MaxWidth" value="320" valueType="data" />
+                <param name="MaxHeight" value="180" valueType="data" />
+                <param name="FourCC" value="AVC1" valueType="data" />
+                <param name="CodecPrivateData" value="000000016742C01EDB05067E7C0440000003004000000CA3C58BB80000000168CA8CB2" valueType="data" />
+            </video>
+            <video src="test_file.ismv" systemBitrate="512000">
+                <param name="trackID" value="3" valueType="data" />
+                <param name="TimeScale" value="25" valueType="data" />
+                <param name="MaxWidth" value="512" valueType="data" />
+                <param name="MaxHeight" value="288" valueType="data" />
+                <param name="FourCC" value="AVC1" valueType="data" />
+                <param name="CodecPrivateData" value="000000016742C01EDB020096C044000003000400000300CA3C58BB800000000168CA8CB2" valueType="data" />
+            </video>
+            <video src="test_file.ismv" systemBitrate="768000">
+                <param name="trackID" value="4" valueType="data" />
+                <param name="TimeScale" value="25" valueType="data" />
+                <param name="MaxWidth" value="704" valueType="data" />
+                <param name="MaxHeight" value="396" valueType="data" />
+                <param name="FourCC" value="AVC1" valueType="data" />
+                <param name="CodecPrivateData" value="00000001674D401FDB02C0CFEF011000000300100000030328F1832E0000000168EACCB2" valueType="data" />
+            </video>
+            <video src="test_file.ismv" systemBitrate="1404000">
+                <param name="trackID" value="5" valueType="data" />
+                <param name="TimeScale" value="25" valueType="data" />
+                <param name="MaxWidth" value="1024" valueType="data" />
+                <param name="MaxHeight" value="576" valueType="data" />
+                <param name="FourCC" value="AVC1" valueType="data" />
+                <param name="CodecPrivateData" value="00000001674D401FDB0100126C0440000003004000000CA3C60CB80000000168EACCB2" valueType="data" />
+            </video>
+        </switch>
+    </body>
+</smil>
