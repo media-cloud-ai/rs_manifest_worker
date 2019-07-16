@@ -27,7 +27,20 @@ impl MessageEvent for DashManifestEvent {
   }
 }
 
+#[derive(Debug)]
+struct IsmManifestEvent {}
+
+impl MessageEvent for IsmManifestEvent {
+  fn process(&self, message: &str) -> Result<JobResult, MessageError> {
+    ism::message::process(message)
+  }
+}
+
 static DASH_MANIFEST_EVENT: DashManifestEvent = DashManifestEvent {};
+static ISM_MANIFEST_EVENT: IsmManifestEvent = IsmManifestEvent {};
+
+const ISM: &str = "ISM";
+const DASH: &str = "DASH";
 
 fn main() {
   if let Ok(_) = env::var("VERBOSE") {
@@ -36,5 +49,17 @@ fn main() {
     simple_logger::init_with_level(Level::Warn).unwrap();
   }
 
-  start_worker(&DASH_MANIFEST_EVENT);
+  match env::var("MANIFEST_MODE")
+    .unwrap_or(DASH.to_string())
+    .as_str()
+  {
+    ISM => {
+      info!("Start worker with ISM mode...");
+      start_worker(&ISM_MANIFEST_EVENT)
+    }
+    _ => {
+      info!("Start worker with DASH mode...");
+      start_worker(&DASH_MANIFEST_EVENT)
+    }
+  }
 }
