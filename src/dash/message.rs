@@ -8,7 +8,7 @@ use std::path::Path;
 use yaserde::de::from_str;
 use yaserde::ser::to_string;
 
-pub fn process(message: &str) -> Result<u64, MessageError> {
+pub fn process(message: &str) -> Result<JobResult, MessageError> {
   println!("{:?}", message);
   let job = Job::new(message)?;
 
@@ -23,26 +23,22 @@ pub fn process(message: &str) -> Result<u64, MessageError> {
 
   if manifest_path == None {
     return Err(MessageError::ProcessingError(
-      job.job_id,
-      "missing \"manifest_path\" parameter".to_string(),
+      JobResult::from(job).with_message("missing \"manifest_path\" parameter".to_string()),
     ));
   }
   if ttml_path == None {
     return Err(MessageError::ProcessingError(
-      job.job_id,
-      "missing \"ttml_path\" parameter".to_string(),
+      JobResult::from(job).with_message("missing \"ttml_path\" parameter".to_string()),
     ));
   }
   if ttml_language == None {
     return Err(MessageError::ProcessingError(
-      job.job_id,
-      "missing \"ttml_language\" parameter".to_string(),
+      JobResult::from(job).with_message("missing \"ttml_language\" parameter".to_string()),
     ));
   }
   if ttml_role == None {
     return Err(MessageError::ProcessingError(
-      job.job_id,
-      "missing \"ttml_role\" parameter".to_string(),
+      JobResult::from(job).with_message("missing \"ttml_role\" parameter".to_string()),
     ));
   }
   let manifest_path = manifest_path.unwrap();
@@ -53,7 +49,7 @@ pub fn process(message: &str) -> Result<u64, MessageError> {
   let reference_url = job.get_string_parameter("reference_url");
 
   add_ttml_subtitle(
-    job.job_id,
+    &job,
     &manifest_path,
     &destination_path,
     &ttml_path.unwrap(),
@@ -63,11 +59,11 @@ pub fn process(message: &str) -> Result<u64, MessageError> {
     replace,
   )?;
 
-  Ok(job.job_id)
+  Ok(JobResult::from(job).with_status(JobStatus::Completed))
 }
 
 fn add_ttml_subtitle(
-  job_id: u64,
+  job: &Job,
   manifest_path: &str,
   destination_manifest_path: &str,
   ttml_path: &str,
@@ -80,8 +76,8 @@ fn add_ttml_subtitle(
 
   if mp_folder.is_none() {
     return Err(MessageError::ProcessingError(
-      job_id,
-      "unable to found folder directory of the manifest".to_string(),
+      JobResult::from(job)
+        .with_message("unable to found folder directory of the manifest".to_string()),
     ));
   }
 
@@ -92,15 +88,15 @@ fn add_ttml_subtitle(
     ttml_path
   };
 
-  let mut file =
-    File::open(manifest_path).map_err(|e| MessageError::ProcessingError(job_id, e.to_string()))?;
+  let mut file = File::open(manifest_path)
+    .map_err(|e| MessageError::ProcessingError(JobResult::from(job).with_message(e.to_string())))?;
   let mut contents = String::new();
   file
     .read_to_string(&mut contents)
-    .map_err(|e| MessageError::ProcessingError(job_id, e.to_string()))?;
+    .map_err(|e| MessageError::ProcessingError(JobResult::from(job).with_message(e.to_string())))?;
 
-  let mut manifest: Manifest =
-    from_str(&contents).map_err(|e| MessageError::ProcessingError(job_id, e))?;
+  let mut manifest: Manifest = from_str(&contents)
+    .map_err(|message| MessageError::ProcessingError(JobResult::from(job).with_message(message)))?;
   let ttml_file_size = if let Ok(metadata) = fs::metadata(&ttml_path) {
     metadata.len()
   } else {
@@ -122,22 +118,23 @@ fn add_ttml_subtitle(
   );
   manifest.add_adaptation_set(adaptation_set);
 
-  let updated_manifest =
-    to_string(&manifest).map_err(|e| MessageError::ProcessingError(job_id, e))?;
+  let updated_manifest = to_string(&manifest)
+    .map_err(|message| MessageError::ProcessingError(JobResult::from(job).with_message(message)))?;
 
   let mut output_file = File::create(destination_manifest_path)
-    .map_err(|e| MessageError::ProcessingError(job_id, e.to_string()))?;
+    .map_err(|e| MessageError::ProcessingError(JobResult::from(job).with_message(e.to_string())))?;
   output_file
     .write_all(&updated_manifest.into_bytes())
-    .map_err(|e| MessageError::ProcessingError(job_id, e.to_string()))?;
+    .map_err(|e| MessageError::ProcessingError(JobResult::from(job).with_message(e.to_string())))?;
 
   Ok(())
 }
 
 #[test]
 fn add_subtitle_ttml_track() {
+  let job = Job::new(r#"{"job_id": 666, "parameters": []}"#).unwrap();
   add_ttml_subtitle(
-    666,
+    &job,
     "tests/sample_1.mpd",
     "tests/sample_1_updated.mpd",
     "tests/sample_subtitle.ttml",
@@ -163,8 +160,9 @@ fn add_subtitle_ttml_track() {
 
 #[test]
 fn replace_subtitle_ttml_track_with_reference() {
+  let job = Job::new(r#"{"job_id": 666, "parameters": []}"#).unwrap();
   add_ttml_subtitle(
-    666,
+    &job,
     "tests/sample_1.mpd",
     "tests/sample_1_replaced.mpd",
     "tests/sample_subtitle.ttml",
@@ -190,8 +188,9 @@ fn replace_subtitle_ttml_track_with_reference() {
 
 #[test]
 fn add_http_subtitle_ttml_track() {
+  let job = Job::new(r#"{"job_id": 666, "parameters": []}"#).unwrap();
   add_ttml_subtitle(
-    666,
+    &job,
     "tests/sample_1.mpd",
     "tests/sample_1_http_ttml.mpd",
     "http://server/static/sample_subtitle.ttml",

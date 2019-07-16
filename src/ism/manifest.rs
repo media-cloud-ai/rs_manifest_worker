@@ -13,21 +13,39 @@ pub struct Smil {
 
 impl Smil {
   pub fn get_audio_stream_sources(&self) -> Vec<String> {
-    utils::remove_duplicates(self.body.switch.audio.iter()
+    utils::remove_duplicates(
+      self
+        .body
+        .switch
+        .audio
+        .iter()
         .map(|audio| audio.source.clone())
-        .collect())
+        .collect(),
+    )
   }
 
   pub fn get_video_stream_sources(&self) -> Vec<String> {
-    utils::remove_duplicates(self.body.switch.video.iter()
+    utils::remove_duplicates(
+      self
+        .body
+        .switch
+        .video
+        .iter()
         .map(|video| video.source.clone())
-        .collect())
+        .collect(),
+    )
   }
 
   pub fn get_text_stream_sources(&self) -> Vec<String> {
-    utils::remove_duplicates(self.body.switch.text.iter()
+    utils::remove_duplicates(
+      self
+        .body
+        .switch
+        .text
+        .iter()
         .map(|text| text.source.clone())
-        .collect())
+        .collect(),
+    )
   }
 }
 

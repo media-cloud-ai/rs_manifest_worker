@@ -10,6 +10,7 @@ extern crate yaserde_derive;
 
 use std::env;
 
+use amqp_worker::job::*;
 use amqp_worker::*;
 use log::Level;
 
@@ -21,7 +22,7 @@ mod utils;
 struct DashManifestEvent {}
 
 impl MessageEvent for DashManifestEvent {
-  fn process(&self, message: &str) -> Result<u64, MessageError> {
+  fn process(&self, message: &str) -> Result<JobResult, MessageError> {
     dash::message::process(message)
   }
 }
