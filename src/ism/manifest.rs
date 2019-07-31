@@ -5,7 +5,11 @@ use yaserde::{YaDeserialize, YaSerialize};
 use crate::utils;
 
 #[derive(Debug, YaDeserialize, YaSerialize)]
-#[yaserde(root = "smil", namespace = "http://www.w3.org/2001/SMIL20/Language")]
+#[yaserde(
+  root = "smil",
+  prefix = "smil"
+  namespace = "smil: http://www.w3.org/2001/SMIL20/Language"
+)]
 pub struct Smil {
   head: Head,
   body: Body,
@@ -50,6 +54,10 @@ impl Smil {
 }
 
 #[derive(Debug, Default, YaDeserialize, YaSerialize)]
+#[yaserde(
+  prefix = "smil"
+  namespace = "smil: http://www.w3.org/2001/SMIL20/Language"
+)]
 struct Head {
   meta: Vec<Meta>,
   #[yaserde(rename = "paramGroup")]
@@ -57,6 +65,10 @@ struct Head {
 }
 
 #[derive(Debug, YaDeserialize, YaSerialize)]
+#[yaserde(
+  prefix = "smil"
+  namespace = "smil: http://www.w3.org/2001/SMIL20/Language"
+)]
 struct Meta {
   #[yaserde(attribute, rename = "name")]
   name_: String,
@@ -65,16 +77,28 @@ struct Meta {
 }
 
 #[derive(Debug, YaDeserialize, YaSerialize)]
+#[yaserde(
+  prefix = "smil"
+  namespace = "smil: http://www.w3.org/2001/SMIL20/Language"
+)]
 struct ParamGroup {
   meta: Vec<Meta>,
 }
 
 #[derive(Debug, Default, YaDeserialize, YaSerialize)]
+#[yaserde(
+  prefix = "smil"
+  namespace = "smil: http://www.w3.org/2001/SMIL20/Language"
+)]
 struct Body {
   switch: Switch,
 }
 
 #[derive(Debug, Default, YaDeserialize, YaSerialize)]
+#[yaserde(
+  prefix = "smil"
+  namespace = "smil: http://www.w3.org/2001/SMIL20/Language"
+)]
 struct Switch {
   audio: Vec<Audio>,
   video: Vec<Video>,
@@ -83,6 +107,10 @@ struct Switch {
 }
 
 #[derive(Debug, YaDeserialize, YaSerialize)]
+#[yaserde(
+  prefix = "smil"
+  namespace = "smil: http://www.w3.org/2001/SMIL20/Language"
+)]
 struct Audio {
   #[yaserde(attribute, rename = "src")]
   source: String,
@@ -94,6 +122,10 @@ struct Audio {
 }
 
 #[derive(Debug, YaDeserialize, YaSerialize)]
+#[yaserde(
+  prefix = "smil"
+  namespace = "smil: http://www.w3.org/2001/SMIL20/Language"
+)]
 struct Video {
   #[yaserde(attribute, rename = "src")]
   source: String,
@@ -103,6 +135,10 @@ struct Video {
 }
 
 #[derive(Debug, YaDeserialize, YaSerialize)]
+#[yaserde(
+  prefix = "smil"
+  namespace = "smil: http://www.w3.org/2001/SMIL20/Language"
+)]
 struct TextStream {
   #[yaserde(attribute, rename = "src")]
   source: String,
@@ -114,6 +150,10 @@ struct TextStream {
 }
 
 #[derive(Debug, YaDeserialize, YaSerialize)]
+#[yaserde(
+  prefix = "smil"
+  namespace = "smil: http://www.w3.org/2001/SMIL20/Language"
+)]
 struct Param {
   #[yaserde(attribute, rename = "name")]
   name_: String,
