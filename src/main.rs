@@ -2,7 +2,6 @@ extern crate amqp_worker;
 #[macro_use]
 extern crate log;
 extern crate serde_json;
-extern crate simple_logger;
 extern crate xml;
 extern crate yaserde;
 #[macro_use]
@@ -12,7 +11,6 @@ use std::env;
 
 use amqp_worker::job::*;
 use amqp_worker::*;
-use log::Level;
 use std::process::exit;
 
 mod dash;
@@ -44,12 +42,6 @@ const ISM: &str = "ISM";
 const DASH: &str = "DASH";
 
 fn main() {
-  if let Ok(_) = env::var("VERBOSE") {
-    simple_logger::init_with_level(Level::Debug).unwrap();
-  } else {
-    simple_logger::init_with_level(Level::Warn).unwrap();
-  }
-
   match env::var("MANIFEST_MODE")
     .unwrap_or(DASH.to_string())
     .as_str()
