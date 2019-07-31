@@ -3,7 +3,11 @@ use std::io::{Read, Write};
 use yaserde::{YaDeserialize, YaSerialize};
 
 #[derive(Debug, Clone, YaSerialize, YaDeserialize)]
-#[yaserde(root = "MPD", namespace = "urn:mpeg:dash:schema:mpd:2011")]
+#[yaserde(
+  root = "MPD",
+  prefix = "mpd",
+  namespace = "mpd: urn:mpeg:dash:schema:mpd:2011"
+)]
 pub struct Manifest {
   #[yaserde(rename = "minBufferTime", attribute)]
   min_buffer_time: Option<String>,
@@ -79,11 +83,15 @@ impl Manifest {
 }
 
 #[derive(Debug, Clone, YaSerialize, YaDeserialize)]
+#[yaserde(
+  prefix = "mpd",
+  namespace = "mpd: urn:mpeg:dash:schema:mpd:2011"
+)]
 pub struct ProgramInformation {
-  #[yaserde(rename = "moreInformationURL", attribute)]
+  #[yaserde(prefix = "mpd",rename = "moreInformationURL", attribute)]
   more_information_url: String,
 
-  #[yaserde(rename = "Title")]
+  #[yaserde(prefix = "mpd",rename = "Title")]
   title: String,
 }
 
@@ -97,6 +105,10 @@ impl Default for ProgramInformation {
 }
 
 #[derive(Debug, Clone, YaSerialize, YaDeserialize)]
+#[yaserde(
+  prefix = "mpd",
+  namespace = "mpd: urn:mpeg:dash:schema:mpd:2011"
+)]
 pub struct Period {
   #[yaserde(attribute)]
   duration: String,
@@ -114,6 +126,10 @@ impl Default for Period {
 }
 
 #[derive(Debug, Clone, YaSerialize, YaDeserialize)]
+#[yaserde(
+  prefix = "mpd",
+  namespace = "mpd: urn:mpeg:dash:schema:mpd:2011"
+)]
 pub struct AdaptationSet {
   #[yaserde(rename = "segmentAlignment", attribute)]
   segment_alignement: bool,
@@ -177,6 +193,10 @@ impl AdaptationSet {
 }
 
 #[derive(Debug, Clone, PartialEq, YaSerialize, YaDeserialize)]
+#[yaserde(
+  prefix = "mpd",
+  namespace = "mpd: urn:mpeg:dash:schema:mpd:2011"
+)]
 pub struct Role {
   #[yaserde(rename = "schemeIdUri", attribute)]
   scheme_id_uri: String,
@@ -197,33 +217,37 @@ impl Default for Role {
 }
 
 #[derive(Debug, Clone, YaSerialize, YaDeserialize)]
+#[yaserde(
+  prefix = "mpd",
+  namespace = "mpd: urn:mpeg:dash:schema:mpd:2011"
+)]
 pub struct Representation {
-  #[yaserde(attribute)]
+  #[yaserde(prefix = "mpd", attribute)]
   id: String,
-  #[yaserde(rename = "mimeType", attribute)]
+  #[yaserde(prefix = "mpd", rename = "mimeType", attribute)]
   mime_type: Option<String>,
-  #[yaserde(attribute)]
+  #[yaserde(prefix = "mpd", attribute)]
   codecs: Option<String>,
-  #[yaserde(attribute)]
+  #[yaserde(prefix = "mpd", attribute)]
   width: Option<u32>,
-  #[yaserde(attribute)]
+  #[yaserde(prefix = "mpd", attribute)]
   height: Option<u32>,
-  #[yaserde(rename = "frameRate", attribute)]
+  #[yaserde(prefix = "mpd", rename = "frameRate", attribute)]
   frame_rate: Option<u32>,
-  #[yaserde(rename = "audioSamplingRate", attribute)]
+  #[yaserde(prefix = "mpd", rename = "audioSamplingRate", attribute)]
   audio_sampling_rate: Option<String>,
-  #[yaserde(rename = "sar", attribute)]
+  #[yaserde(prefix = "mpd", rename = "sar", attribute)]
   sample_aspect_ratio: Option<String>,
-  #[yaserde(rename = "startWithSAP", attribute)]
+  #[yaserde(prefix = "mpd", rename = "startWithSAP", attribute)]
   start_with_sap: Option<u8>,
-  #[yaserde(attribute)]
+  #[yaserde(prefix = "mpd", attribute)]
   bandwidth: u64,
 
-  #[yaserde(rename = "AudioChannelConfiguration")]
+  #[yaserde(prefix = "mpd", rename = "AudioChannelConfiguration")]
   audio_channel_configuration: Vec<AudioChannelConfiguration>,
-  #[yaserde(rename = "BaseURL")]
+  #[yaserde(prefix = "mpd", rename = "BaseURL")]
   base_url: String,
-  #[yaserde(rename = "SegmentBase")]
+  #[yaserde(prefix = "mpd", rename = "SegmentBase")]
   segment_base: Option<SegmentBase>,
 }
 
@@ -248,6 +272,10 @@ impl Default for Representation {
 }
 
 #[derive(Debug, Clone, YaSerialize, YaDeserialize)]
+#[yaserde(
+  prefix = "mpd",
+  namespace = "mpd: urn:mpeg:dash:schema:mpd:2011"
+)]
 pub struct SegmentBase {
   #[yaserde(rename = "indexRangeExact", attribute)]
   index_range_exact: bool,
@@ -271,6 +299,10 @@ impl Default for SegmentBase {
 }
 
 #[derive(Debug, Clone, YaSerialize, YaDeserialize)]
+#[yaserde(
+  prefix = "mpd",
+  namespace = "mpd: urn:mpeg:dash:schema:mpd:2011"
+)]
 pub struct Initialization {
   #[yaserde(rename = "sourceURL", attribute)]
   source_url: Option<String>,
@@ -288,6 +320,10 @@ impl Default for Initialization {
 }
 
 #[derive(Debug, Clone, YaSerialize, YaDeserialize)]
+#[yaserde(
+  prefix = "mpd",
+  namespace = "mpd: urn:mpeg:dash:schema:mpd:2011"
+)]
 pub struct AudioChannelConfiguration {
   #[yaserde(rename = "schemeIdUri", attribute)]
   scheme_id_uri: String,
