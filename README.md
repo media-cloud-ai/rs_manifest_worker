@@ -23,7 +23,7 @@ One variable could be set specifically for this worker:
 
 | Variable name          | Default value | Possible values | Description                                 |
 |------------------------|---------------|-----------------|---------------------------------------------|
-| `MANIFEST_MODE`        | `dash`        | `ism` or `dash` | If value is `dash` (or if variable is not set) the worker will process dash format. Otherwise, it will process ism format. |
+| `MANIFEST_MODE`        | `DASH`        | `ISM` or `DASH` | (Case sensitive) If value is `DASH` (or if variable is not set) the worker will process dash format. Otherwise, it will process ism format. |
 
 
 Once these environment variables are set, you can start your worker:
