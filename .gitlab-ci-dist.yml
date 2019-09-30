@@ -1,0 +1,49 @@
+include:
+  - project: exploit/k8s/utils/k8s-deploy
+    file: /.k8s-ci.yml
+
+image: ${RUSTTOOLS_DOCKER_IMG}
+
+cache:
+  paths:
+    - target
+
+stages:
+  - compile
+  - tests
+  - quality
+  - docker
+  - k8s-pipeline
+
+lint:
+  stage: compile
+  script:
+    - make ci-lint
+
+tests:
+  stage: tests
+  script:
+    - make ci-tests
+
+code-format:
+  stage: quality
+  allow_failure: true
+  script:
+    - make ci-code-format
+
+code-coverage:
+  stage: quality
+  script:
+    - make ci-code-coverage
+
+build:
+  stage: docker
+  image: docker
+  before_script:
+    - apk add --no-cache git make jq cargo
+    - make docker-registry-login
+  services:
+    - docker:dind
+  script:
+    - make docker-build
+    - make docker-push-registry
