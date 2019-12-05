@@ -13,9 +13,9 @@ pub fn process(message: &str) -> Result<JobResult, MessageError> {
   let job = Job::new(message)?;
 
   warn!("{:?}", job);
-  let _ = job.check_requirements()?;
+  job.check_requirements()?;
 
-  let manifest_path = job.get_string_parameter("manifest_path");
+  let manifest_path = job.get_string_parameter("source_path");
   let ttml_path = job.get_string_parameter("ttml_path");
   let ttml_language = job.get_string_parameter("ttml_language");
   let ttml_role = job.get_string_parameter("ttml_role");
@@ -45,7 +45,7 @@ pub fn process(message: &str) -> Result<JobResult, MessageError> {
 
   let destination_path = job
     .get_string_parameter("destination_path")
-    .unwrap_or(manifest_path.clone());
+    .unwrap_or_else(|| manifest_path.clone());
   let reference_url = job.get_string_parameter("reference_url");
 
   add_ttml_subtitle(

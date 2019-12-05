@@ -8,20 +8,13 @@ use crate::ism::manifest::Smil;
 use amqp_worker::job::Job;
 use amqp_worker::job::JobResult;
 use amqp_worker::job::JobStatus;
-use amqp_worker::job::Parameter;
-use amqp_worker::job::ParametersContainer;
 
 /// Process the incoming message.
 pub fn process(message: &str) -> Result<JobResult, MessageError> {
   let job = job::Job::new(message)?;
   debug!("reveived message: {:?}", job);
 
-  match job.check_requirements() {
-    Ok(_) => {}
-    Err(message) => {
-      return Err(message);
-    }
-  }
+  job.check_requirements()?;
 
   let source_path = job.get_string_parameter("source_path");
 

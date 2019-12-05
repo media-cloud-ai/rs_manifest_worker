@@ -83,15 +83,12 @@ impl Manifest {
 }
 
 #[derive(Debug, Clone, YaSerialize, YaDeserialize)]
-#[yaserde(
-  prefix = "mpd",
-  namespace = "mpd: urn:mpeg:dash:schema:mpd:2011"
-)]
+#[yaserde(prefix = "mpd", namespace = "mpd: urn:mpeg:dash:schema:mpd:2011")]
 pub struct ProgramInformation {
-  #[yaserde(prefix = "mpd",rename = "moreInformationURL", attribute)]
+  #[yaserde(prefix = "mpd", rename = "moreInformationURL", attribute)]
   more_information_url: String,
 
-  #[yaserde(prefix = "mpd",rename = "Title")]
+  #[yaserde(prefix = "mpd", rename = "Title")]
   title: String,
 }
 
@@ -105,10 +102,7 @@ impl Default for ProgramInformation {
 }
 
 #[derive(Debug, Clone, YaSerialize, YaDeserialize)]
-#[yaserde(
-  prefix = "mpd",
-  namespace = "mpd: urn:mpeg:dash:schema:mpd:2011"
-)]
+#[yaserde(prefix = "mpd", namespace = "mpd: urn:mpeg:dash:schema:mpd:2011")]
 pub struct Period {
   #[yaserde(attribute)]
   duration: String,
@@ -126,10 +120,7 @@ impl Default for Period {
 }
 
 #[derive(Debug, Clone, YaSerialize, YaDeserialize)]
-#[yaserde(
-  prefix = "mpd",
-  namespace = "mpd: urn:mpeg:dash:schema:mpd:2011"
-)]
+#[yaserde(prefix = "mpd", namespace = "mpd: urn:mpeg:dash:schema:mpd:2011")]
 pub struct AdaptationSet {
   #[yaserde(rename = "segmentAlignment", attribute)]
   segment_alignement: bool,
@@ -193,10 +184,7 @@ impl AdaptationSet {
 }
 
 #[derive(Debug, Clone, PartialEq, YaSerialize, YaDeserialize)]
-#[yaserde(
-  prefix = "mpd",
-  namespace = "mpd: urn:mpeg:dash:schema:mpd:2011"
-)]
+#[yaserde(prefix = "mpd", namespace = "mpd: urn:mpeg:dash:schema:mpd:2011")]
 pub struct Role {
   #[yaserde(rename = "schemeIdUri", attribute)]
   scheme_id_uri: String,
@@ -217,10 +205,7 @@ impl Default for Role {
 }
 
 #[derive(Debug, Clone, YaSerialize, YaDeserialize)]
-#[yaserde(
-  prefix = "mpd",
-  namespace = "mpd: urn:mpeg:dash:schema:mpd:2011"
-)]
+#[yaserde(prefix = "mpd", namespace = "mpd: urn:mpeg:dash:schema:mpd:2011")]
 pub struct Representation {
   #[yaserde(prefix = "mpd", attribute)]
   id: String,
@@ -272,10 +257,7 @@ impl Default for Representation {
 }
 
 #[derive(Debug, Clone, YaSerialize, YaDeserialize)]
-#[yaserde(
-  prefix = "mpd",
-  namespace = "mpd: urn:mpeg:dash:schema:mpd:2011"
-)]
+#[yaserde(prefix = "mpd", namespace = "mpd: urn:mpeg:dash:schema:mpd:2011")]
 pub struct SegmentBase {
   #[yaserde(rename = "indexRangeExact", attribute)]
   index_range_exact: bool,
@@ -299,10 +281,7 @@ impl Default for SegmentBase {
 }
 
 #[derive(Debug, Clone, YaSerialize, YaDeserialize)]
-#[yaserde(
-  prefix = "mpd",
-  namespace = "mpd: urn:mpeg:dash:schema:mpd:2011"
-)]
+#[yaserde(prefix = "mpd", namespace = "mpd: urn:mpeg:dash:schema:mpd:2011")]
 pub struct Initialization {
   #[yaserde(rename = "sourceURL", attribute)]
   source_url: Option<String>,
@@ -320,10 +299,7 @@ impl Default for Initialization {
 }
 
 #[derive(Debug, Clone, YaSerialize, YaDeserialize)]
-#[yaserde(
-  prefix = "mpd",
-  namespace = "mpd: urn:mpeg:dash:schema:mpd:2011"
-)]
+#[yaserde(prefix = "mpd", namespace = "mpd: urn:mpeg:dash:schema:mpd:2011")]
 pub struct AudioChannelConfiguration {
   #[yaserde(rename = "schemeIdUri", attribute)]
   scheme_id_uri: String,

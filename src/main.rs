@@ -10,17 +10,82 @@ extern crate yaserde_derive;
 use std::env;
 
 use amqp_worker::job::*;
+use amqp_worker::worker::{Parameter, ParameterType};
 use amqp_worker::*;
+use semver::Version;
 use std::process::exit;
 
 mod dash;
 mod ism;
 mod utils;
 
+macro_rules! crate_version {
+  () => {
+    env!("CARGO_PKG_VERSION")
+  };
+}
+
 #[derive(Debug)]
 struct DashManifestEvent {}
 
 impl MessageEvent for DashManifestEvent {
+  fn get_name(&self) -> String {
+    "DASH Manifest worker".to_string()
+  }
+
+  fn get_short_description(&self) -> String {
+    "Parse and get some information from DASH Manifest files".to_string()
+  }
+
+  fn get_description(&self) -> String {
+    r#"Parse DASH manifest file and extract related files.
+    "#
+    .to_string()
+  }
+
+  fn get_version(&self) -> Version {
+    semver::Version::parse(crate_version!()).expect("unable to locate Package version")
+  }
+
+  fn get_git_version(&self) -> Version {
+    semver::Version::parse(crate_version!()).expect("unable to locate Package version")
+  }
+
+  fn get_parameters(&self) -> Vec<Parameter> {
+    vec![
+      Parameter {
+        identifier: "source_path".to_string(),
+        label: "Source Path of the Manifest".to_string(),
+        kind: vec![ParameterType::String],
+        required: true,
+      },
+      Parameter {
+        identifier: "ttml_path".to_string(),
+        label: "Subtitle source path".to_string(),
+        kind: vec![ParameterType::String],
+        required: true,
+      },
+      Parameter {
+        identifier: "ttml_language".to_string(),
+        label: "Subtitle language".to_string(),
+        kind: vec![ParameterType::String],
+        required: true,
+      },
+      Parameter {
+        identifier: "ttml_role".to_string(),
+        label: "Subtitle role".to_string(),
+        kind: vec![ParameterType::String],
+        required: true,
+      },
+      Parameter {
+        identifier: "replace".to_string(),
+        label: "Replace the subtitle (default: false)".to_string(),
+        kind: vec![ParameterType::Boolean],
+        required: false,
+      },
+    ]
+  }
+
   fn process(&self, message: &str) -> Result<JobResult, MessageError> {
     dash::message::process(message)
   }
@@ -30,6 +95,38 @@ impl MessageEvent for DashManifestEvent {
 struct IsmManifestEvent {}
 
 impl MessageEvent for IsmManifestEvent {
+  fn get_name(&self) -> String {
+    "ISM Manifest worker".to_string()
+  }
+
+  fn get_short_description(&self) -> String {
+    "Parse and get some information from ISM Manifest files".to_string()
+  }
+
+  fn get_description(&self) -> String {
+    r#"Parse ISM manifest file and extract related files.
+    It can be possible to filter per content-type (Audio, Video, Subtitle)
+    "#
+    .to_string()
+  }
+
+  fn get_version(&self) -> Version {
+    semver::Version::parse(crate_version!()).expect("unable to locate Package version")
+  }
+
+  fn get_git_version(&self) -> Version {
+    semver::Version::parse(crate_version!()).expect("unable to locate Package version")
+  }
+
+  fn get_parameters(&self) -> Vec<Parameter> {
+    vec![Parameter {
+      identifier: "source_path".to_string(),
+      label: "Source Path".to_string(),
+      kind: vec![ParameterType::String],
+      required: true,
+    }]
+  }
+
   fn process(&self, message: &str) -> Result<JobResult, MessageError> {
     ism::message::process(message)
   }
@@ -43,7 +140,7 @@ const DASH: &str = "DASH";
 
 fn main() {
   match env::var("MANIFEST_MODE")
-    .unwrap_or(DASH.to_string())
+    .unwrap_or_else(|_| DASH.to_string())
     .as_str()
   {
     ISM => {
