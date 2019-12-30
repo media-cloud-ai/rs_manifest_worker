@@ -8,7 +8,7 @@ authors = [
 edition = "2018"
 
 [dependencies]
-amqp_worker = "0.6.0"
+amqp_worker = "0.7.0"
 futures = "0.3.1"
 hyper = "0.12"
 log = "0.4.6"
