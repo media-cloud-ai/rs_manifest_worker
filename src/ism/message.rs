@@ -1,45 +1,63 @@
 use std::fs::File;
 use std::io::Read;
 
+use crate::ism::manifest::Smil;
+use amqp_worker::job::{Job, JobResult, JobStatus};
 use amqp_worker::*;
+use lapin_futures::Channel;
 use yaserde::de::from_str;
 
-use crate::ism::manifest::Smil;
-use amqp_worker::job::Job;
-use amqp_worker::job::JobResult;
-use amqp_worker::job::JobStatus;
-
-/// Process the incoming message.
-pub fn process(message: &str) -> Result<JobResult, MessageError> {
-  let job = job::Job::new(message)?;
-  debug!("reveived message: {:?}", job);
-
-  job.check_requirements()?;
-
+pub fn process(
+  _channel: Option<&Channel>,
+  job: &Job,
+  job_result: JobResult,
+) -> Result<JobResult, MessageError> {
   let source_path = job.get_string_parameter("source_path");
 
   if source_path.is_none() {
     return Err(MessageError::ProcessingError(
-      JobResult::from(job).with_message("missing source path parameter".to_string()),
+      job_result
+        .with_status(JobStatus::Error)
+        .with_message("missing source path parameter"),
     ));
   }
 
-  let sources = get_manifest_sources(&job, source_path.unwrap().as_str())?;
+  let mut sources = get_manifest_sources(job_result.clone(), source_path.unwrap().as_str())?;
 
-  Ok(JobResult::new(job.job_id, JobStatus::Completed, sources))
+  Ok(
+    job_result
+      .with_status(JobStatus::Completed)
+      .with_parameters(&mut sources),
+  )
 }
 
-/// Extract the stream sources from the ISM manifest file
-fn get_manifest_sources(job: &Job, path: &str) -> Result<Vec<Parameter>, MessageError> {
-  let mut file = File::open(path)
-    .map_err(|e| MessageError::ProcessingError(JobResult::from(job).with_message(e.to_string())))?;
-  let mut contents = String::new();
-  file
-    .read_to_string(&mut contents)
-    .map_err(|e| MessageError::ProcessingError(JobResult::from(job).with_message(e.to_string())))?;
+fn get_manifest_sources(job_result: JobResult, path: &str) -> Result<Vec<Parameter>, MessageError> {
+  let mut file = File::open(path).map_err(|e| {
+    MessageError::ProcessingError(
+      job_result
+        .clone()
+        .with_status(JobStatus::Error)
+        .with_message(&e.to_string()),
+    )
+  })?;
 
-  let manifest: Smil = from_str(&contents)
-    .map_err(|message| MessageError::ProcessingError(JobResult::from(job).with_message(message)))?;
+  let mut contents = String::new();
+  file.read_to_string(&mut contents).map_err(|e| {
+    MessageError::ProcessingError(
+      job_result
+        .clone()
+        .with_status(JobStatus::Error)
+        .with_message(&e.to_string()),
+    )
+  })?;
+
+  let manifest: Smil = from_str(&contents).map_err(|message| {
+    MessageError::ProcessingError(
+      job_result
+        .with_status(JobStatus::Error)
+        .with_message(&message.to_string()),
+    )
+  })?;
 
   let mut sources = vec![];
   sources.push(Parameter::ArrayOfStringsParam {
@@ -65,8 +83,8 @@ fn get_manifest_sources(job: &Job, path: &str) -> Result<Vec<Parameter>, Message
 
 #[test]
 fn get_manifest_sources_test() {
-  let job = Job::new(r#"{"job_id": 123, "parameters": []}"#).unwrap();
-  let result = get_manifest_sources(&job, "tests/sample.ism");
+  let job_result = JobResult::new(123);
+  let result = get_manifest_sources(job_result, "tests/sample.ism");
   assert!(result.is_ok());
   let parameters = result.unwrap();
   for param in parameters {
@@ -90,7 +108,7 @@ fn get_manifest_sources_test() {
 
 #[test]
 fn ack_message_test() {
-  let msg = r#"{
+  let message = r#"{
     "parameters": [
       {
         "id": "requirements",
@@ -108,10 +126,13 @@ fn ack_message_test() {
     "job_id":690
   }"#;
 
-  let result = process(msg);
+  let job = Job::new(message).unwrap();
+  let job_result = JobResult::new(job.job_id);
+  let result = process(None, &job, job_result);
+
   assert!(result.is_ok());
   let job_result = result.unwrap();
-  assert_eq!(job_result.job_id, 690);
+  assert_eq!(job_result.get_job_id(), 690);
   let audio_sources = job_result.get_array_of_strings_parameter("audio");
   assert_eq!(audio_sources, Some(vec!["test_file.isma".to_string()]));
   let video_sources = job_result.get_array_of_strings_parameter("video");

@@ -1,9 +1,5 @@
-extern crate amqp_worker;
 #[macro_use]
 extern crate log;
-extern crate serde_json;
-extern crate xml;
-extern crate yaserde;
 #[macro_use]
 extern crate yaserde_derive;
 
@@ -12,6 +8,7 @@ use std::env;
 use amqp_worker::job::*;
 use amqp_worker::worker::{Parameter, ParameterType};
 use amqp_worker::*;
+use lapin_futures::Channel;
 use semver::Version;
 use std::process::exit;
 
@@ -44,10 +41,6 @@ impl MessageEvent for DashManifestEvent {
   }
 
   fn get_version(&self) -> Version {
-    semver::Version::parse(crate_version!()).expect("unable to locate Package version")
-  }
-
-  fn get_git_version(&self) -> Version {
     semver::Version::parse(crate_version!()).expect("unable to locate Package version")
   }
 
@@ -86,8 +79,13 @@ impl MessageEvent for DashManifestEvent {
     ]
   }
 
-  fn process(&self, message: &str) -> Result<JobResult, MessageError> {
-    dash::message::process(message)
+  fn process(
+    &self,
+    channel: Option<&Channel>,
+    job: &Job,
+    job_result: JobResult,
+  ) -> Result<JobResult, MessageError> {
+    dash::message::process(channel, job, job_result)
   }
 }
 
@@ -114,10 +112,6 @@ impl MessageEvent for IsmManifestEvent {
     semver::Version::parse(crate_version!()).expect("unable to locate Package version")
   }
 
-  fn get_git_version(&self) -> Version {
-    semver::Version::parse(crate_version!()).expect("unable to locate Package version")
-  }
-
   fn get_parameters(&self) -> Vec<Parameter> {
     vec![Parameter {
       identifier: "source_path".to_string(),
@@ -127,8 +121,13 @@ impl MessageEvent for IsmManifestEvent {
     }]
   }
 
-  fn process(&self, message: &str) -> Result<JobResult, MessageError> {
-    ism::message::process(message)
+  fn process(
+    &self,
+    channel: Option<&Channel>,
+    job: &Job,
+    job_result: JobResult,
+  ) -> Result<JobResult, MessageError> {
+    ism::message::process(channel, job, job_result)
   }
 }
 
