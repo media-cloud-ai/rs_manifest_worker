@@ -9,7 +9,7 @@ edition = "2018"
 
 [dependencies]
 amqp_worker = "0.9"
-futures = "0.3.1"
+futures = "0.3.4"
 hyper = "0.12"
 lapin-futures = "^0.28"
 log = "0.4.6"
