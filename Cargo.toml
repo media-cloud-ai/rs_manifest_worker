@@ -16,7 +16,7 @@ log = "0.4.6"
 semver = "^0.9"
 serde = "^1.0"
 serde_json = "^1.0"
-xml-rs = "0.8.0"
+xml-rs = "0.8.1"
 yaserde = "0.3.7"
 yaserde_derive = "0.3.7"
 
