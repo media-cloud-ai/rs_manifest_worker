@@ -315,7 +315,7 @@ dependencies = [
 
 [[package]]
 name = "dash_manifest_worker"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "amqp_worker 0.9.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "built 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -328,7 +328,7 @@ dependencies = [
  "serde_json 1.0.44 (registry+https://github.com/rust-lang/crates.io-index)",
  "xml-rs 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "yaserde 0.3.8 (registry+https://github.com/rust-lang/crates.io-index)",
- "yaserde_derive 0.3.8 (registry+https://github.com/rust-lang/crates.io-index)",
+ "yaserde_derive 0.3.15 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -2033,7 +2033,7 @@ dependencies = [
 
 [[package]]
 name = "yaserde_derive"
-version = "0.3.8"
+version = "0.3.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "proc-macro2 1.0.6 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2264,4 +2264,4 @@ dependencies = [
 "checksum ws2_32-sys 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)" = "d59cefebd0c892fa2dd6de581e937301d8552cb44489cdff035c6187cb63fa5e"
 "checksum xml-rs 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)" = "541b12c998c5b56aa2b4e6f18f03664eef9a4fd0a246a55594efae6cc2d964b5"
 "checksum yaserde 0.3.8 (registry+https://github.com/rust-lang/crates.io-index)" = "a55f39f7eee68b4249eb74bdbd55402646ca447a3e31868820e587e5c8aa4726"
-"checksum yaserde_derive 0.3.8 (registry+https://github.com/rust-lang/crates.io-index)" = "60e32275c77b3b9456eac3804cd3a3e77fcb54b38d4496eb8fd8e0e92a84935b"
+"checksum yaserde_derive 0.3.15 (registry+https://github.com/rust-lang/crates.io-index)" = "f787866e2932c0aae3c84cf1f301baa10cdd34820706c86c86060242e6e5ef10"
