@@ -1,16 +1,19 @@
 use crate::dash::manifest::{AdaptationSet, Manifest};
-use amqp_worker::job::*;
-use amqp_worker::*;
-use lapin_futures::Channel;
+use mcai_worker_sdk::{
+  job::{Job, JobResult, JobStatus},
+  parameter::container::ParametersContainer,
+  McaiChannel,
+  MessageError,
+};
 use std::fs;
-use std::fs::File;
-use std::io::{Read, Write};
 use std::path::Path;
-use yaserde::de::from_str;
-use yaserde::ser::to_string;
+use yaserde::{
+  de::from_str,
+  ser::to_string,
+};
 
 pub fn process(
-  _channel: Option<&Channel>,
+  _channel: Option<McaiChannel>,
   job: &Job,
   job_result: JobResult,
 ) -> Result<JobResult, MessageError> {
@@ -96,16 +99,7 @@ fn add_ttml_subtitle(
     ttml_path
   };
 
-  let mut file = File::open(manifest_path).map_err(|e| {
-    MessageError::ProcessingError(
-      job_result
-        .clone()
-        .with_status(JobStatus::Error)
-        .with_message(&e.to_string()),
-    )
-  })?;
-  let mut contents = String::new();
-  file.read_to_string(&mut contents).map_err(|e| {
+  let contents = fs::read_to_string(manifest_path).map_err(|e| {
     MessageError::ProcessingError(
       job_result
         .clone()
@@ -152,7 +146,7 @@ fn add_ttml_subtitle(
     )
   })?;
 
-  let mut output_file = File::create(destination_manifest_path).map_err(|e| {
+  fs::write(destination_manifest_path, &updated_manifest.into_bytes()).map_err(|e| {
     MessageError::ProcessingError(
       job_result
         .clone()
@@ -160,15 +154,6 @@ fn add_ttml_subtitle(
         .with_message(&e.to_string()),
     )
   })?;
-  output_file
-    .write_all(&updated_manifest.into_bytes())
-    .map_err(|e| {
-      MessageError::ProcessingError(
-        job_result
-          .with_status(JobStatus::Error)
-          .with_message(&e.to_string()),
-      )
-    })?;
 
   Ok(())
 }
@@ -188,17 +173,11 @@ fn add_subtitle_ttml_track() {
   )
   .unwrap();
 
-  let mut file_reference = File::open("tests/sample_1_for_validation.mpd").unwrap();
-  let mut reference = String::new();
-  file_reference.read_to_string(&mut reference).unwrap();
-
-  let mut file = File::open("tests/sample_1_updated.mpd").unwrap();
-  let mut content = String::new();
-  file.read_to_string(&mut content).unwrap();
+  let reference = fs::read_to_string("tests/sample_1_for_validation.mpd").unwrap();
+  let content = fs::read_to_string("tests/sample_1_updated.mpd").unwrap();
 
   println!("{}", content);
   assert!(content == reference);
-  fs::remove_file("tests/sample_1_updated.mpd").unwrap();
 }
 
 #[test]
@@ -217,17 +196,11 @@ fn replace_subtitle_ttml_track_with_reference() {
   )
   .unwrap();
 
-  let mut file_reference = File::open("tests/sample_1_for_replacement.mpd").unwrap();
-  let mut reference = String::new();
-  file_reference.read_to_string(&mut reference).unwrap();
-
-  let mut file = File::open("tests/sample_1_replaced.mpd").unwrap();
-  let mut content = String::new();
-  file.read_to_string(&mut content).unwrap();
+  let reference = fs::read_to_string("tests/sample_1_for_replacement.mpd").unwrap();
+  let content = fs::read_to_string("tests/sample_1_replaced.mpd").unwrap();
 
   println!("{}", content);
   assert!(content == reference);
-  fs::remove_file("tests/sample_1_replaced.mpd").unwrap();
 }
 
 #[test]
@@ -246,15 +219,9 @@ fn add_http_subtitle_ttml_track() {
   )
   .unwrap();
 
-  let mut file_reference = File::open("tests/sample_1_for_http.mpd").unwrap();
-  let mut reference = String::new();
-  file_reference.read_to_string(&mut reference).unwrap();
-
-  let mut file = File::open("tests/sample_1_http_ttml.mpd").unwrap();
-  let mut content = String::new();
-  file.read_to_string(&mut content).unwrap();
+  let reference = fs::read_to_string("tests/sample_1_for_http.mpd").unwrap();
+  let content = fs::read_to_string("tests/sample_1_http_ttml.mpd").unwrap();
 
   println!("{}", content);
   assert!(content == reference);
-  fs::remove_file("tests/sample_1_http_ttml.mpd").unwrap();
 }

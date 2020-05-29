@@ -1,14 +1,17 @@
-use std::fs::File;
-use std::io::Read;
 
 use crate::ism::manifest::Smil;
-use amqp_worker::job::{Job, JobResult, JobStatus};
-use amqp_worker::*;
-use lapin_futures::Channel;
+use mcai_worker_sdk::{
+  job::{Job, JobResult, JobStatus},
+  parameter::container::ParametersContainer,
+  McaiChannel,
+  MessageError,
+  Parameter,
+};
+use std::fs;
 use yaserde::de::from_str;
 
 pub fn process(
-  _channel: Option<&Channel>,
+  _channel: Option<McaiChannel>,
   job: &Job,
   job_result: JobResult,
 ) -> Result<JobResult, MessageError> {
@@ -32,17 +35,7 @@ pub fn process(
 }
 
 fn get_manifest_sources(job_result: JobResult, path: &str) -> Result<Vec<Parameter>, MessageError> {
-  let mut file = File::open(path).map_err(|e| {
-    MessageError::ProcessingError(
-      job_result
-        .clone()
-        .with_status(JobStatus::Error)
-        .with_message(&e.to_string()),
-    )
-  })?;
-
-  let mut contents = String::new();
-  file.read_to_string(&mut contents).map_err(|e| {
+  let contents = fs::read_to_string(path).map_err(|e| {
     MessageError::ProcessingError(
       job_result
         .clone()

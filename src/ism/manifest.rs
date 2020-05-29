@@ -1,12 +1,11 @@
-use std::io::{Read, Write};
-
-use yaserde::{YaDeserialize, YaSerialize};
-
 use crate::utils;
+use mcai_worker_sdk::debug;
+use std::io::{Read, Write};
+use yaserde::{YaDeserialize, YaSerialize};
 
 #[derive(Debug, YaDeserialize, YaSerialize)]
 #[yaserde(
-  root = "smil",
+  rename = "smil",
   prefix = "smil"
   namespace = "smil: http://www.w3.org/2001/SMIL20/Language"
 )]
@@ -71,7 +70,7 @@ struct Head {
 )]
 struct Meta {
   #[yaserde(attribute, rename = "name")]
-  name_: String,
+  label: String,
   #[yaserde(attribute)]
   content: String,
 }
@@ -156,7 +155,7 @@ struct TextStream {
 )]
 struct Param {
   #[yaserde(attribute, rename = "name")]
-  name_: String,
+  label: String,
   #[yaserde(attribute)]
   value: String,
   #[yaserde(attribute, rename = "valueType")]
