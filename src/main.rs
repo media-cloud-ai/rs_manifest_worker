@@ -1,15 +1,18 @@
 #[macro_use]
-extern crate log;
-#[macro_use]
 extern crate yaserde_derive;
 
+use mcai_worker_sdk::{
+  error,
+  info,
+  job::{Job, JobResult},
+  start_worker,
+  worker::{Parameter, ParameterType},
+  McaiChannel,
+  MessageError,
+  MessageEvent,
+  Version,
+};
 use std::env;
-
-use amqp_worker::job::*;
-use amqp_worker::worker::{Parameter, ParameterType};
-use amqp_worker::*;
-use lapin_futures::Channel;
-use semver::Version;
 use std::process::exit;
 
 mod dash;
@@ -41,7 +44,7 @@ impl MessageEvent for DashManifestEvent {
   }
 
   fn get_version(&self) -> Version {
-    semver::Version::parse(crate_version!()).expect("unable to locate Package version")
+    Version::parse(crate_version!()).expect("unable to locate Package version")
   }
 
   fn get_parameters(&self) -> Vec<Parameter> {
@@ -81,7 +84,7 @@ impl MessageEvent for DashManifestEvent {
 
   fn process(
     &self,
-    channel: Option<&Channel>,
+    channel: Option<McaiChannel>,
     job: &Job,
     job_result: JobResult,
   ) -> Result<JobResult, MessageError> {
@@ -109,7 +112,7 @@ impl MessageEvent for IsmManifestEvent {
   }
 
   fn get_version(&self) -> Version {
-    semver::Version::parse(crate_version!()).expect("unable to locate Package version")
+    Version::parse(crate_version!()).expect("unable to locate Package version")
   }
 
   fn get_parameters(&self) -> Vec<Parameter> {
@@ -123,7 +126,7 @@ impl MessageEvent for IsmManifestEvent {
 
   fn process(
     &self,
-    channel: Option<&Channel>,
+    channel: Option<McaiChannel>,
     job: &Job,
     job_result: JobResult,
   ) -> Result<JobResult, MessageError> {

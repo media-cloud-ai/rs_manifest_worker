@@ -1,10 +1,11 @@
-use std::io::{Read, Write};
 
+use mcai_worker_sdk::debug;
+use std::io::{Read, Write};
 use yaserde::{YaDeserialize, YaSerialize};
 
 #[derive(Debug, Clone, YaSerialize, YaDeserialize)]
 #[yaserde(
-  root = "MPD",
+  rename = "MPD",
   prefix = "mpd",
   namespace = "mpd: urn:mpeg:dash:schema:mpd:2011"
 )]
