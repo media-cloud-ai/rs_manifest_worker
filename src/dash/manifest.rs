@@ -1,4 +1,3 @@
-
 use mcai_worker_sdk::debug;
 use std::io::{Read, Write};
 use yaserde::{YaDeserialize, YaSerialize};
@@ -36,22 +35,17 @@ impl Manifest {
     self.period.adaptation_set = self
       .period
       .adaptation_set
-      .iter()
+      .clone()
+      .into_iter()
       .filter(|adaptation_set| {
-        if ttml_language == adaptation_set.language.as_str()
+        ttml_language == adaptation_set.language.as_str()
           && adaptation_set.role
             == Some(Role {
               scheme_id_uri: "urn:mpeg:dash:role:2011".to_string(),
               id: None,
               content: Some(ttml_role.to_string()),
             })
-        {
-          true
-        } else {
-          false
-        }
       })
-      .map(|adaptation_set| adaptation_set.clone())
       .collect();
   }
 

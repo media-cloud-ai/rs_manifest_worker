@@ -9,9 +9,11 @@ edition = "2018"
 
 [dependencies]
 log = "0.4"
-mcai_worker_sdk = "0.10"
+mcai_worker_sdk = "0.11.0-beta"
+schemars = "0.7.6"
 serde = "^1.0"
 serde_json = "^1.0"
+serde_derive = "^1.0"
 xml-rs = "0.8.0"
 yaserde = "0.3"
 yaserde_derive = "0.3"
