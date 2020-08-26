@@ -1,0 +1,35 @@
+{
+  "job_id": 1234,
+  "parameters": [
+    {
+      "id": "source_path",
+      "type": "string",
+      "value": "tests/sample_1.mpd"
+    },
+    {
+      "id": "ttml_path",
+      "type": "string",
+      "value": "tests/sample_subtitle.ttml"
+    },
+    {
+      "id": "ttml_language",
+      "type": "string",
+      "value": "qaa"
+    },
+    {
+      "id": "ttml_role",
+      "type": "string",
+      "value": "subtitle"
+    },
+    {
+      "id": "replace",
+      "type": "string",
+      "value": false
+    },
+    {
+      "id": "destination_path",
+      "type": "string",
+      "value": "tests/sample_1_replaced.mpd"
+    }
+  ]
+}
