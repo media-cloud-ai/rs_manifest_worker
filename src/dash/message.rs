@@ -1,88 +1,28 @@
 use crate::dash::manifest::{AdaptationSet, Manifest};
+use crate::DashManifestParameters;
 use mcai_worker_sdk::{
-  job::{Job, JobResult, JobStatus},
-  parameter::container::ParametersContainer,
-  McaiChannel,
-  MessageError,
+  job::{JobResult, JobStatus},
+  McaiChannel, MessageError,
 };
 use std::fs;
 use std::path::Path;
-use yaserde::{
-  de::from_str,
-  ser::to_string,
-};
+use yaserde::{de::from_str, ser::to_string};
 
 pub fn process(
   _channel: Option<McaiChannel>,
-  job: &Job,
+  parameters: DashManifestParameters,
   job_result: JobResult,
 ) -> Result<JobResult, MessageError> {
-  let manifest_path = job.get_string_parameter("source_path");
-  let ttml_path = job.get_string_parameter("ttml_path");
-  let ttml_language = job.get_string_parameter("ttml_language");
-  let ttml_role = job.get_string_parameter("ttml_role");
-  let replace = job.get_boolean_parameter("replace").unwrap_or(false);
-
-  if manifest_path == None {
-    return Err(MessageError::ProcessingError(
-      job_result
-        .with_status(JobStatus::Error)
-        .with_message("missing \"manifest_path\" parameter"),
-    ));
-  }
-  if ttml_path == None {
-    return Err(MessageError::ProcessingError(
-      job_result
-        .with_status(JobStatus::Error)
-        .with_message("missing \"ttml_path\" parameter"),
-    ));
-  }
-  if ttml_language == None {
-    return Err(MessageError::ProcessingError(
-      job_result
-        .with_status(JobStatus::Error)
-        .with_message("missing \"ttml_language\" parameter"),
-    ));
-  }
-  if ttml_role == None {
-    return Err(MessageError::ProcessingError(
-      job_result
-        .with_status(JobStatus::Error)
-        .with_message("missing \"ttml_role\" parameter"),
-    ));
-  }
-  let manifest_path = manifest_path.unwrap();
-
-  let destination_path = job
-    .get_string_parameter("destination_path")
-    .unwrap_or_else(|| manifest_path.clone());
-  let reference_url = job.get_string_parameter("reference_url");
-
-  add_ttml_subtitle(
-    job_result.clone(),
-    &manifest_path,
-    &destination_path,
-    &ttml_path.unwrap(),
-    &ttml_language.unwrap(),
-    &ttml_role.unwrap(),
-    &reference_url,
-    replace,
-  )?;
+  add_ttml_subtitle(job_result.clone(), parameters)?;
 
   Ok(job_result.with_status(JobStatus::Completed))
 }
 
 fn add_ttml_subtitle(
   job_result: JobResult,
-  manifest_path: &str,
-  destination_manifest_path: &str,
-  ttml_path: &str,
-  ttml_language: &str,
-  ttml_role: &str,
-  reference_url: &Option<String>,
-  replace: bool,
+  parameters: DashManifestParameters,
 ) -> Result<(), MessageError> {
-  let mp_folder = Path::new(manifest_path).parent();
+  let mp_folder = Path::new(&parameters.source_path).parent();
 
   if mp_folder.is_none() {
     return Err(MessageError::ProcessingError(
@@ -92,14 +32,14 @@ fn add_ttml_subtitle(
     ));
   }
 
-  let reference_ttml_path = if let Ok(path) = Path::new(ttml_path).strip_prefix(mp_folder.unwrap())
-  {
-    path.to_str().unwrap()
-  } else {
-    ttml_path
-  };
+  let reference_ttml_path =
+    if let Ok(path) = Path::new(&parameters.ttml_path).strip_prefix(mp_folder.unwrap()) {
+      path.to_str().unwrap()
+    } else {
+      &parameters.ttml_path
+    };
 
-  let contents = fs::read_to_string(manifest_path).map_err(|e| {
+  let contents = fs::read_to_string(&parameters.source_path).map_err(|e| {
     MessageError::ProcessingError(
       job_result
         .clone()
@@ -116,23 +56,23 @@ fn add_ttml_subtitle(
         .with_message(&message),
     )
   })?;
-  let ttml_file_size = if let Ok(metadata) = fs::metadata(&ttml_path) {
+  let ttml_file_size = if let Ok(metadata) = fs::metadata(&parameters.ttml_path) {
     metadata.len()
   } else {
     0
   };
 
-  if let Some(url) = reference_url {
+  if let Some(url) = &parameters.reference_url {
     manifest.prefix_urls(&url);
   }
 
-  if replace {
-    manifest.remove_adaptation_set(ttml_language, ttml_role);
+  if parameters.replace.unwrap_or(false) {
+    manifest.remove_adaptation_set(&parameters.ttml_language, &parameters.ttml_role);
   }
   let adaptation_set = AdaptationSet::new_ttml_subtitle(
     &reference_ttml_path,
-    ttml_language,
-    ttml_role,
+    &parameters.ttml_language,
+    &parameters.ttml_role,
     ttml_file_size,
   );
   manifest.add_adaptation_set(adaptation_set);
@@ -146,6 +86,8 @@ fn add_ttml_subtitle(
     )
   })?;
 
+  let manifest_path = parameters.source_path.clone();
+  let destination_manifest_path = parameters.destination_path.unwrap_or_else(|| manifest_path);
   fs::write(destination_manifest_path, &updated_manifest.into_bytes()).map_err(|e| {
     MessageError::ProcessingError(
       job_result
@@ -160,68 +102,62 @@ fn add_ttml_subtitle(
 
 #[test]
 fn add_subtitle_ttml_track() {
+  let parameters = DashManifestParameters {
+    source_path: "tests/sample_1.mpd".to_string(),
+    ttml_path: "tests/sample_subtitle.ttml".to_string(),
+    ttml_language: "fra".to_string(),
+    ttml_role: "subtitle".to_string(),
+    replace: None,
+    destination_path: Some("tests/sample_1_updated.mpd".to_string()),
+    reference_url: None,
+  };
   let job_result = JobResult::new(666);
-  add_ttml_subtitle(
-    job_result,
-    "tests/sample_1.mpd",
-    "tests/sample_1_updated.mpd",
-    "tests/sample_subtitle.ttml",
-    "fra",
-    "subtitle",
-    &None,
-    false,
-  )
-  .unwrap();
+  add_ttml_subtitle(job_result, parameters).unwrap();
 
   let reference = fs::read_to_string("tests/sample_1_for_validation.mpd").unwrap();
   let content = fs::read_to_string("tests/sample_1_updated.mpd").unwrap();
 
-  println!("{}", content);
-  assert!(content == reference);
+  assert_eq!(content, reference);
 }
 
 #[test]
 fn replace_subtitle_ttml_track_with_reference() {
+  let parameters = DashManifestParameters {
+    source_path: "tests/sample_1.mpd".to_string(),
+    ttml_path: "tests/sample_subtitle.ttml".to_string(),
+    ttml_language: "qaa".to_string(),
+    ttml_role: "subtitle".to_string(),
+    replace: Some(false),
+    destination_path: Some("tests/sample_1_replaced.mpd".to_string()),
+    reference_url: Some("http://server.com/dash/manifest.mpd".to_string()),
+  };
   let job_result = JobResult::new(666);
 
-  add_ttml_subtitle(
-    job_result,
-    "tests/sample_1.mpd",
-    "tests/sample_1_replaced.mpd",
-    "tests/sample_subtitle.ttml",
-    "qaa",
-    "subtitle",
-    &Some("http://server.com/dash/manifest.mpd".to_string()),
-    false,
-  )
-  .unwrap();
+  add_ttml_subtitle(job_result, parameters).unwrap();
 
   let reference = fs::read_to_string("tests/sample_1_for_replacement.mpd").unwrap();
   let content = fs::read_to_string("tests/sample_1_replaced.mpd").unwrap();
 
-  println!("{}", content);
-  assert!(content == reference);
+  assert_eq!(content, reference);
 }
 
 #[test]
 fn add_http_subtitle_ttml_track() {
+  let parameters = DashManifestParameters {
+    source_path: "tests/sample_1.mpd".to_string(),
+    ttml_path: "http://server/static/sample_subtitle.ttml".to_string(),
+    ttml_language: "fra".to_string(),
+    ttml_role: "subtitle".to_string(),
+    replace: Some(false),
+    destination_path: Some("tests/sample_1_http_ttml.mpd".to_string()),
+    reference_url: None,
+  };
   let job_result = JobResult::new(666);
 
-  add_ttml_subtitle(
-    job_result,
-    "tests/sample_1.mpd",
-    "tests/sample_1_http_ttml.mpd",
-    "http://server/static/sample_subtitle.ttml",
-    "fra",
-    "subtitle",
-    &None,
-    false,
-  )
-  .unwrap();
+  add_ttml_subtitle(job_result, parameters).unwrap();
 
   let reference = fs::read_to_string("tests/sample_1_for_http.mpd").unwrap();
   let content = fs::read_to_string("tests/sample_1_http_ttml.mpd").unwrap();
 
-  println!("{}", content);
-  assert!(content == reference);
+  assert_eq!(content, reference);
 }

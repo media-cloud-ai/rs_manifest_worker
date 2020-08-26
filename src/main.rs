@@ -1,19 +1,15 @@
 #[macro_use]
+extern crate serde_derive;
+#[macro_use]
 extern crate yaserde_derive;
 
-use mcai_worker_sdk::{
-  error,
-  info,
-  job::{Job, JobResult},
-  start_worker,
-  worker::{Parameter, ParameterType},
-  McaiChannel,
-  MessageError,
-  MessageEvent,
-  Version,
-};
 use std::env;
 use std::process::exit;
+
+use mcai_worker_sdk::{
+  error, info, job::JobResult, start_worker, McaiChannel, MessageError, MessageEvent, Version,
+};
+use schemars::JsonSchema;
 
 mod dash;
 mod ism;
@@ -25,10 +21,26 @@ macro_rules! crate_version {
   };
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 struct DashManifestEvent {}
 
-impl MessageEvent for DashManifestEvent {
+#[derive(Clone, Debug, Deserialize, JsonSchema)]
+pub struct DashManifestParameters {
+  /// Source Path of the Manifest
+  source_path: String,
+  /// Subtitle source path
+  ttml_path: String,
+  /// Subtitle language
+  ttml_language: String,
+  /// Subtitle role
+  ttml_role: String,
+  /// Replace the subtitle (default: false)
+  replace: Option<bool>,
+  destination_path: Option<String>,
+  reference_url: Option<String>,
+}
+
+impl MessageEvent<DashManifestParameters> for DashManifestEvent {
   fn get_name(&self) -> String {
     "DASH Manifest worker".to_string()
   }
@@ -47,55 +59,26 @@ impl MessageEvent for DashManifestEvent {
     Version::parse(crate_version!()).expect("unable to locate Package version")
   }
 
-  fn get_parameters(&self) -> Vec<Parameter> {
-    vec![
-      Parameter {
-        identifier: "source_path".to_string(),
-        label: "Source Path of the Manifest".to_string(),
-        kind: vec![ParameterType::String],
-        required: true,
-      },
-      Parameter {
-        identifier: "ttml_path".to_string(),
-        label: "Subtitle source path".to_string(),
-        kind: vec![ParameterType::String],
-        required: true,
-      },
-      Parameter {
-        identifier: "ttml_language".to_string(),
-        label: "Subtitle language".to_string(),
-        kind: vec![ParameterType::String],
-        required: true,
-      },
-      Parameter {
-        identifier: "ttml_role".to_string(),
-        label: "Subtitle role".to_string(),
-        kind: vec![ParameterType::String],
-        required: true,
-      },
-      Parameter {
-        identifier: "replace".to_string(),
-        label: "Replace the subtitle (default: false)".to_string(),
-        kind: vec![ParameterType::Boolean],
-        required: false,
-      },
-    ]
-  }
-
   fn process(
     &self,
     channel: Option<McaiChannel>,
-    job: &Job,
+    parameters: DashManifestParameters,
     job_result: JobResult,
   ) -> Result<JobResult, MessageError> {
-    dash::message::process(channel, job, job_result)
+    dash::message::process(channel, parameters, job_result)
   }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 struct IsmManifestEvent {}
 
-impl MessageEvent for IsmManifestEvent {
+#[derive(Clone, Debug, Deserialize, JsonSchema)]
+pub struct IsmManifestParameters {
+  /// Source Path of the Manifest
+  source_path: String,
+}
+
+impl MessageEvent<IsmManifestParameters> for IsmManifestEvent {
   fn get_name(&self) -> String {
     "ISM Manifest worker".to_string()
   }
@@ -115,27 +98,15 @@ impl MessageEvent for IsmManifestEvent {
     Version::parse(crate_version!()).expect("unable to locate Package version")
   }
 
-  fn get_parameters(&self) -> Vec<Parameter> {
-    vec![Parameter {
-      identifier: "source_path".to_string(),
-      label: "Source Path".to_string(),
-      kind: vec![ParameterType::String],
-      required: true,
-    }]
-  }
-
   fn process(
     &self,
     channel: Option<McaiChannel>,
-    job: &Job,
+    parameters: IsmManifestParameters,
     job_result: JobResult,
   ) -> Result<JobResult, MessageError> {
-    ism::message::process(channel, job, job_result)
+    ism::message::process(channel, parameters, job_result)
   }
 }
-
-static DASH_MANIFEST_EVENT: DashManifestEvent = DashManifestEvent {};
-static ISM_MANIFEST_EVENT: IsmManifestEvent = IsmManifestEvent {};
 
 const ISM: &str = "ISM";
 const DASH: &str = "DASH";
@@ -147,11 +118,13 @@ fn main() {
   {
     ISM => {
       info!("Start worker with ISM mode...");
-      start_worker(&ISM_MANIFEST_EVENT)
+      let message_event = IsmManifestEvent::default();
+      start_worker(message_event)
     }
     DASH => {
       info!("Start worker with DASH mode...");
-      start_worker(&DASH_MANIFEST_EVENT)
+      let message_event = DashManifestEvent::default();
+      start_worker(message_event)
     }
     value => {
       error!("Unsupported mode: {:?}", value);
