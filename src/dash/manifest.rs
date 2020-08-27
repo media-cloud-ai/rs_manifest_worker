@@ -101,7 +101,7 @@ impl Default for ProgramInformation {
 pub struct Period {
   #[yaserde(attribute)]
   duration: String,
-  #[yaserde(rename = "AdaptationSet")]
+  #[yaserde(prefix = "mpd", rename = "AdaptationSet")]
   adaptation_set: Vec<AdaptationSet>,
 }
 
@@ -138,7 +138,7 @@ pub struct AdaptationSet {
 
   #[yaserde(rename = "Role")]
   role: Option<Role>,
-  #[yaserde(rename = "Representation")]
+  #[yaserde(prefix = "mpd", rename = "Representation")]
   representation: Vec<Representation>,
 }
 
