@@ -274,7 +274,7 @@ dependencies = [
 
 [[package]]
 name = "dash_manifest_worker"
-version = "0.4.1"
+version = "0.4.2"
 dependencies = [
  "built",
  "log",
@@ -762,9 +762,9 @@ checksum = "60302e4db3a61da70c0cb7991976248362f30319e88850c487b9b95bbf059e00"
 
 [[package]]
 name = "mcai_worker_sdk"
-version = "0.11.0"
+version = "0.11.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dd4588360542797ed9cf5d299d806eb49227cdb2d93a278e58e6b69f7b5e75c6"
+checksum = "fc9137bed234a7fa1f225fd7567b2c0a6fab7fa1d3fd0e01f12e60c40d87bab3"
 dependencies = [
  "amq-protocol",
  "amq-protocol-types",
