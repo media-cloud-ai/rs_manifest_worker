@@ -1,2 +1,7 @@
 /target
 **/*.rs.bk
+
+/tests/sample_1_http_ttml.mpd
+/tests/sample_1_replaced.mpd
+/tests/sample_1_updated.mpd
+/tests/sample_2.ism
