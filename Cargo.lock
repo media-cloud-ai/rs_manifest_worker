@@ -286,19 +286,8 @@ dependencies = [
  "serde_derive",
  "serde_json",
  "xml-rs",
- "yaserde",
- "yaserde_derive",
-]
-
-[[package]]
-name = "dict_derive"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9d7ee5676aa48357bd5e8bcf095167e6678837232a7b85bce424f46cd93a2c60"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn",
+ "yaserde 0.4.3",
+ "yaserde_derive 0.4.3",
 ]
 
 [[package]]
@@ -778,16 +767,15 @@ checksum = "7ffc5c5338469d4d3ea17d269fa8ea3512ad247247c30bd2df69e68309ed0a08"
 
 [[package]]
 name = "mcai_worker_sdk"
-version = "0.11.8"
+version = "0.11.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5044118e860517ef75f8e8704a9842638b1488a73f8d7202f11d591ad15196b4"
+checksum = "3d4e10deff9d8ef0f1844c113a9b6227f9954653b02ccda3678a7bf04a794789"
 dependencies = [
  "amq-protocol",
  "amq-protocol-types",
  "amq-protocol-uri",
  "built",
  "chrono",
- "dict_derive",
  "env_logger",
  "failure",
  "futures",
@@ -807,8 +795,8 @@ dependencies = [
  "tokio",
  "uuid",
  "xml-rs",
- "yaserde",
- "yaserde_derive",
+ "yaserde 0.5.1",
+ "yaserde_derive 0.5.1",
 ]
 
 [[package]]
@@ -1971,10 +1959,32 @@ dependencies = [
 ]
 
 [[package]]
+name = "yaserde"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "abec9f4fcec41a41918dbf946ee0c68b650bdfe78cd5d6e291b2e4ec1e4fec54"
+dependencies = [
+ "log",
+ "xml-rs",
+]
+
+[[package]]
 name = "yaserde_derive"
 version = "0.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "eb5734e23c8e05914d7cefaa4eac02aad8c392a6e7d5f965bd90d406479024a9"
+dependencies = [
+ "heck",
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
+name = "yaserde_derive"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "73eac190977781ca4dcb6f5277ac63d9e122e86dbca838744fae51030639e860"
 dependencies = [
  "heck",
  "proc-macro2",
