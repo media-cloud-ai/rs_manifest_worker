@@ -286,7 +286,7 @@ dependencies = [
  "serde_derive",
  "serde_json",
  "xml-rs",
- "yaserde",
+ "yaserde 0.6.0",
  "yaserde_derive",
 ]
 
@@ -807,7 +807,7 @@ dependencies = [
  "tokio",
  "uuid",
  "xml-rs",
- "yaserde",
+ "yaserde 0.4.3",
  "yaserde_derive",
 ]
 
@@ -1965,6 +1965,16 @@ name = "yaserde"
 version = "0.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "445e980b222cf73fd4a5e87dba0faa519c81b1bdc88847d029435ca5279139b8"
+dependencies = [
+ "log",
+ "xml-rs",
+]
+
+[[package]]
+name = "yaserde"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bc096efbee9ec8fee0600a15bb4fd651ccc14570cb05b6d4dd66b0325e4a0b5e"
 dependencies = [
  "log",
  "xml-rs",
