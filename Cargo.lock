@@ -127,11 +127,20 @@ checksum = "cf1de2fe8c75bc145a2f577add951f8134889b4795d47466a54a5c846d691693"
 
 [[package]]
 name = "built"
-version = "0.4.3"
+version = "0.4.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3fa7899958f4aa3c40edc1b033d0e956763319e398924abb80a0034dda5bb198"
+checksum = "c8f1b029cb3929cb0c99780b0c10fe512f60be5438adf5f757e4afa1bc75a984"
 dependencies = [
- "cargo-lock",
+ "cargo-lock 4.0.1",
+]
+
+[[package]]
+name = "built"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "76efeb50f902677353f8f7052c7da1cc8c4f65b46b30cc41fc1e3042249711c7"
+dependencies = [
+ "cargo-lock 6.0.1",
 ]
 
 [[package]]
@@ -153,6 +162,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8504b63dd1249fd1745b7b4ef9b6f7b107ddeb3c95370043c7dbcc38653a2679"
 dependencies = [
  "semver 0.9.0",
+ "serde",
+ "toml",
+ "url",
+]
+
+[[package]]
+name = "cargo-lock"
+version = "6.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e6f16e7adc20969298b1e137ac21ab3a7e7a9412fec71f963ff2fdc41663d70f"
+dependencies = [
+ "semver 0.11.0",
  "serde",
  "toml",
  "url",
@@ -278,7 +299,7 @@ dependencies = [
 name = "dash_manifest_worker"
 version = "0.4.2"
 dependencies = [
- "built",
+ "built 0.5.0",
  "log",
  "mcai_worker_sdk",
  "schemars",
@@ -785,7 +806,7 @@ dependencies = [
  "amq-protocol",
  "amq-protocol-types",
  "amq-protocol-uri",
- "built",
+ "built 0.4.4",
  "chrono",
  "dict_derive",
  "env_logger",
