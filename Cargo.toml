@@ -19,4 +19,4 @@ yaserde = "0.4"
 yaserde_derive = "0.4"
 
 [build-dependencies]
-built = "0.4"
+built = "0.5"
